@@ -23,9 +23,6 @@ holbertonschool-hbnb/
 │
 ├── Part1/
 │   ├── README.md                          # Complete technical documentation
-│   ├── Package_Diagram.md               # Architecture layers
-│   ├── Class_Diagram.md                 # Business entities
-│   ├── Sequence_Diagrams.md             # API interaction flows
 │   ├── Class Diagrams.jpeg                # Visual diagrams
 │   ├── High-Level Package Diagram.png
 │   └── Sequence_Diagrams_for_API_Calls.md
@@ -105,4 +102,5 @@ This project is part of the Holberton School curriculum.
 ---
 
 **[View Full Documentation →](Part1/README.md)**
+
 
