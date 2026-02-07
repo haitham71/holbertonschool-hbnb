@@ -18,68 +18,19 @@ This document presents the full architectural overview, including:
 * The layered system design using the facade pattern
 * Business entities and their relationships
 * The interaction flow for core API operations
+---
+## 🧱 High-Level Architecture – Package Diagram
+
+<img width="901" height="901" alt="image" src="https://github.com/user-attachments/assets/bb89c86d-4b46-44e3-bf72-0b3ff88c5186" />
 
 ---
 
-## 🧱 High-Level Architecture – Package Diagram
+---
 
-```mermaid
-classDiagram
-class User {
-  +UUID id
-  +str first_name
-  +str last_name
-  +str email
-  +str password
-  +bool is_admin
-  +datetime created_at
-  +datetime updated_at
-  +register()
-  +update_profile()
-  +delete()
-}
-class Place {
-  +UUID id
-  +str title
-  +str description
-  +float price
-  +float latitude
-  +float longitude
-  +str owner
-  +datetime created_at
-  +datetime updated_at
-  +create()
-  +update()
-  +delete()
-}
-class Review {
-  +UUID id
-  +int rating
-  +str comment
-  +str place
-  +str user
-  +datetime created_at
-  +datetime updated_at
-  +submit()
-  +update()
-  +delete()
-}
-class Amenity {
-  +UUID id
-  +str name
-  +str description
-  +datetime created_at
-  +datetime updated_at
-  +create()
-  +update()
-  +delete()
-}
-User --> Place : owns
-User --> Review : writes
-Place --> Review : receives
-Place --> Amenity : has >*
+## 🏛️ Class diagram
 
-```
+<img width="492" height="812" alt="image" src="https://github.com/user-attachments/assets/f519bef3-8475-46a8-b8c8-60431cbc90e1" />
+
 
 ### ✅ Entity Descriptions
 
