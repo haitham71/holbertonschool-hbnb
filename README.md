@@ -64,15 +64,15 @@ Persistence Layer (Database)
    - Architecture diagrams
    - Sequence diagrams for all API operations
 
-2. **[Package Diagram](Part1/Package_Diagram.md)**
+2. **[Package Diagram](Part1/High-Level%20Package%20Diagram.png)**
    - 3-layer architecture explanation
    - Facade pattern description
 
-3. **[Class Diagram](Part1/Class_Diagram.md)**
+3. **[Class Diagram](Part1/Class%20Diagrams.jpeg)**
    - Business entities (User, Place, Review, Amenity)
    - Relationships between entities
 
-4. **[Sequence Diagrams](Part1/Sequence_Diagrams.md)**
+4. **[Sequence Diagrams](Part1/Sequence_Diagrams_for_API_Calls.md)**
    - User registration flow
    - Place creation flow
    - Review submission flow
@@ -105,3 +105,4 @@ This project is part of the Holberton School curriculum.
 ---
 
 **[View Full Documentation →](Part1/README.md)**
+
