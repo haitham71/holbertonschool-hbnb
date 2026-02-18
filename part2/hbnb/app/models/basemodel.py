@@ -1,18 +1,23 @@
 import uuid
 from datetime import datetime
 
-class BaseModel:
-    """Base model for all objects in HBnB"""
 
+class BaseModel:
     def __init__(self):
         self.id = str(uuid.uuid4())
-        self.created_at = self._get_current_time()
-        self.updated_at = self._get_current_time()
+        self.created_at = datetime.utcnow()
+        self.updated_at = datetime.utcnow()
 
-    def _get_current_time(self):
-        """Return the current datetime"""
-        return datetime.now()
+    def update_timestamp(self):
+        self.updated_at = datetime.utcnow()
 
-    def save(self):
-        """Update the updated_at timestamp"""
-        self.updated_at = self._get_current_time()
+    def to_dict_base(self):
+        return {
+            "id": self.id,
+            "created_at": self.created_at.isoformat(),
+            "updated_at": self.updated_at.isoformat()
+        }
+
+    def is_max_length(self, field_name, value, max_length):
+        if len(value) > max_length:
+            raise ValueError(f"{field_name} cannot exceed {max_length} characters")

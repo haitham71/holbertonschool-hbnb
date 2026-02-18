@@ -1,46 +1,54 @@
-# app/api/user_routes.py
+from flask_restx import Namespace, Resource, fields
+from flask import request
+from app.services.facade import HBnBFacade
 
-from flask import Blueprint, request, jsonify
-from facade.hbnb_facade import HBnBFacade
-
-user_bp = Blueprint('user_bp', __name__, url_prefix='/api/v1/users')
+api = Namespace('users', description='User operations')
 facade = HBnBFacade()
 
-@user_bp.route('/', methods=['GET'])
-def get_users():
-    """Get list of all users"""
-    users = facade.get_all_users()
-    return jsonify([user.to_dict() for user in users]), 200
+user_model = api.model('User', {
+    "id": fields.String(readonly=True),
+    "first_name": fields.String(required=True),
+    "last_name": fields.String(required=True),
+    "email": fields.String(required=True),
+    "is_admin": fields.Boolean
+})
 
-@user_bp.route('/<user_id>', methods=['GET'])
-def get_user(user_id):
-    """Get a single user by id"""
-    user = facade.get_user(user_id)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    return jsonify(user.to_dict()), 200
 
-@user_bp.route('/', methods=['POST'])
-def create_user():
-    """Create a new user"""
-    data = request.json
-    try:
-        user = facade.create_user(
-            first_name=data['first_name'],
-            last_name=data['last_name'],
-            email=data['email'],
-            password=data['password'],
-            is_admin=data.get('is_admin', False)
-        )
-        return jsonify(user.to_dict()), 201
-    except Exception as e:
-        return jsonify({"error": str(e)}), 400
+@api.route('/')
+class UserList(Resource):
 
-@user_bp.route('/<user_id>', methods=['PUT'])
-def update_user(user_id):
-    """Update user information"""
-    data = request.json
-    user = facade.update_user(user_id, data)
-    if not user:
-        return jsonify({"error": "User not found"}), 404
-    return jsonify(user.to_dict()), 200
+    @api.marshal_list_with(user_model)
+    def get(self):
+        users = facade.get_all_users()
+        return [u.to_dict() for u in users], 200
+
+    @api.expect(user_model, validate=True)
+    @api.marshal_with(user_model, code=201)
+    def post(self):
+        try:
+            user = facade.create_user(request.json)
+            return user.to_dict(), 201
+        except (TypeError, ValueError) as e:
+            api.abort(400, str(e))
+
+
+@api.route('/<string:user_id>')
+class UserResource(Resource):
+
+    @api.marshal_with(user_model)
+    def get(self, user_id):
+        user = facade.get_user(user_id)
+        if not user:
+            api.abort(404, "User not found")
+        return user.to_dict(), 200
+
+    @api.expect(user_model, validate=True)
+    @api.marshal_with(user_model)
+    def put(self, user_id):
+        try:
+            user = facade.update_user(user_id, request.json)
+            if not user:
+                api.abort(404, "User not found")
+            return user.to_dict(), 200
+        except (TypeError, ValueError) as e:
+            api.abort(400, str(e))
