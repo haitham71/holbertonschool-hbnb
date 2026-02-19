@@ -1,8 +1,11 @@
 from app.persistence.repository import InMemoryRepository
 from app.models.user import User
+from app.models.amenity import Amenity
+from app.models.place import Place
 
 
 class HBnBFacade:
+
     def __init__(self):
         self.user_repo = InMemoryRepository()
         self.place_repo = InMemoryRepository()
@@ -58,8 +61,103 @@ class HBnBFacade:
 
         return user
 
-    # ================= PLACE (placeholder) =================
+    # ================= PLACE =================
+
+    def create_place(self, place_data):
+        """
+        Create a new place after validating owner and amenities.
+        """
+
+        owner = self.user_repo.get(place_data["owner_id"])
+        if not owner:
+            raise ValueError("Owner not found")
+
+        place = Place(
+            title=place_data["title"],
+            description=place_data.get("description", ""),
+            price=place_data["price"],
+            latitude=place_data["latitude"],
+            longitude=place_data["longitude"],
+            owner=owner
+        )
+
+        amenity_ids = place_data.get("amenities", [])
+        for amenity_id in amenity_ids:
+            amenity = self.amenity_repo.get(amenity_id)
+            if not amenity:
+                raise ValueError("Amenity not found")
+            place.add_amenity(amenity)
+
+        self.place_repo.add(place)
+
+        owner.places.append(place)
+
+        return place
 
     def get_place(self, place_id):
-        # Logic will be implemented in later tasks
+        """
+        Retrieve a place by ID.
+        """
         return self.place_repo.get(place_id)
+
+    def get_all_places(self):
+        """
+        Retrieve all places.
+        """
+        return self.place_repo.get_all()
+
+    def update_place(self, place_id, place_data):
+        """
+        Update place information.
+        """
+        place = self.place_repo.get(place_id)
+        if not place:
+            return None
+
+        if "title" in place_data:
+            place.title = place_data["title"]
+
+        if "description" in place_data:
+            place.description = place_data["description"]
+
+        if "price" in place_data:
+            place.price = place_data["price"]
+
+        if "latitude" in place_data:
+            place.latitude = place_data["latitude"]
+
+        if "longitude" in place_data:
+            place.longitude = place_data["longitude"]
+
+        if "amenities" in place_data:
+            place.amenities = []
+            for amenity_id in place_data["amenities"]:
+                amenity = self.amenity_repo.get(amenity_id)
+                if not amenity:
+                    raise ValueError("Amenity not found")
+                place.add_amenity(amenity)
+
+        return place
+
+    # ================= AMENITIES =================
+
+    def create_amenity(self, amenity_data):
+        amenity = Amenity(name=amenity_data["name"])
+        self.amenity_repo.add(amenity)
+        return amenity
+
+    def get_amenity(self, amenity_id):
+        return self.amenity_repo.get(amenity_id)
+
+    def get_all_amenities(self):
+        return self.amenity_repo.get_all()
+
+    def update_amenity(self, amenity_id, amenity_data):
+        amenity = self.amenity_repo.get(amenity_id)
+        if not amenity:
+            return None
+
+        if "name" in amenity_data:
+            amenity.name = amenity_data["name"]
+
+        return amenity
