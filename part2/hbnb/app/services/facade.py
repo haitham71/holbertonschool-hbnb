@@ -166,6 +166,7 @@ class HBnBFacade:
 
 # ================= REVIEW =================
 
+
     def create_review(self, review_data):
         user = self.user_repo.get(review_data["user_id"])
         if not user:
@@ -220,6 +221,3 @@ class HBnBFacade:
 
         self.review_repo.delete(review_id)
         return True
-
-
-facade = HBnBFacade()

@@ -98,6 +98,10 @@ class Place(BaseModel):
 
         self._longitude = value
 
+    # -----------
+    # Review
+    # ----------
+
     def add_review(self, review):
         if review not in self.reviews:
             self.reviews.append(review)
@@ -105,6 +109,20 @@ class Place(BaseModel):
     def remove_review(self, review):
         if review in self.reviews:
             self.reviews.remove(review)
+
+    # -----------
+    # amenity
+    # -----------
+
+    def add_amenity(self, amenity):
+        """Add an amenity to the place"""
+        if amenity not in self.amenities:
+            self.amenities.append(amenity)
+
+    def remove_amenity(self, amenity):
+        """Remove an amenity from the place"""
+        if amenity in self.amenities:
+            self.amenities.remove(amenity)
 
     # ----------------------
     # Serialization
