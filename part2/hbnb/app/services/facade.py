@@ -19,6 +19,11 @@ class HBnBFacade:
         """
         Create a new user and store it in repository
         """
+        existing_user = self.user_repo.get_by_attribute(
+            "email", user_data["email"])
+        if existing_user:
+            raise ValueError("Email already registered")
+
         user = User(
             first_name=user_data["first_name"],
             last_name=user_data["last_name"],
@@ -47,6 +52,13 @@ class HBnBFacade:
         user = self.user_repo.get(user_id)
         if not user:
             return None
+
+        if "email" in user_data:
+            existing_user = self.user_repo.get_by_attribute(
+                "email", user_data["email"])
+            if existing_user and existing_user.id != user_id:
+                raise ValueError("Email already registered by another user")
+            user.email = user_data["email"]
 
         if "first_name" in user_data:
             user.first_name = user_data["first_name"]
@@ -165,7 +177,6 @@ class HBnBFacade:
 
 
 # ================= REVIEW =================
-
 
     def create_review(self, review_data):
         user = self.user_repo.get(review_data["user_id"])
