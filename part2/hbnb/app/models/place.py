@@ -39,6 +39,8 @@ class Place(BaseModel):
         if not isinstance(value, str):
             raise TypeError("Title must be a string")
 
+        super().is_max_length("title", value, 100)
+
         if len(value.strip()) == 0:
             raise ValueError("Title cannot be empty")
 

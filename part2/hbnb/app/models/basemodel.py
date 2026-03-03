@@ -18,13 +18,13 @@ class BaseModel:
             "updated_at": self.updated_at.isoformat()
         }
 
-    def is_max_length(self, field_name: str, value, max_length: int):
+    def is_max_length(self, field_name: str, value: str, max_length: int):
         '''
-                checker for maximum lenght
+                checker for maximum length	
 
 
                 :param field_name: passed name from client
-                :param value: passed lenght from client
+                :param value: passed length from client
                 :param max_length: maximum length required
                 '''
         if len(value) > max_length:
