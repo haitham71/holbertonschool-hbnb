@@ -1,16 +1,47 @@
 from .basemodel import BaseModel
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
 
 
 class User(BaseModel):
 
-    def __init__(self, first_name, last_name, email, is_admin=False):
+    def __init__(self, first_name, last_name, email, password, is_admin=False):
         super().__init__()
+
         self.first_name = first_name
         self.last_name = last_name
         self.email = email
         self.is_admin = is_admin
+
+        # Store password securely
+        self.password_hash = None
+        self.set_password(password)
+
         self.places = []
         self.reviews = []
+
+    # ----------------------
+    # Password handling
+    # ----------------------
+    def set_password(self, password):
+        """
+        Hash and store the password securely
+        """
+        if not isinstance(password, str):
+            raise TypeError("Password must be a string")
+
+        if len(password) < 6:
+            raise ValueError("Password must be at least 6 characters")
+
+        self.password_hash = bcrypt.generate_password_hash(
+            password).decode("utf-8")
+
+    def check_password(self, password):
+        """
+        Check if provided password matches the stored hash
+        """
+        return bcrypt.check_password_hash(self.password_hash, password)
 
     # ----------------------
     # First Name
@@ -45,7 +76,7 @@ class User(BaseModel):
             raise TypeError("Last name must be a string")
 
         if len(value.strip()) == 0:
-            raise ValueError("First name cannot be empty")
+            raise ValueError("Last name cannot be empty")
 
         if len(value) > 50:
             raise ValueError("Last name must be 50 characters max.")
@@ -94,6 +125,9 @@ class User(BaseModel):
             self.email = data["email"]
 
     def to_dict(self):
+        """
+        Return user data without password
+        """
         return {
             "id": self.id,
             "first_name": self.first_name,
