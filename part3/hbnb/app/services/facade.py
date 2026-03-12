@@ -158,6 +158,9 @@ class HBnBFacade:
     # ================= AMENITIES =================
 
     def create_amenity(self, amenity_data):
+        if "name" not in amenity_data:
+            raise ValueError("Name is required")
+
         amenity = Amenity(name=amenity_data["name"])
         self.amenity_repo.add(amenity)
         return amenity
@@ -189,11 +192,11 @@ class HBnBFacade:
         place = self.place_repo.get(review_data["place_id"])
         if not place:
             raise ValueError("Place not found")
-        
+
         # user cannot review his own place
         if place.owner.id == user.id:
             raise ValueError("You cannot review your own place")
-        
+
         for review in place.reviews:
             if review.user.id == user.id:
                 raise ValueError("You already reviewed this place")
