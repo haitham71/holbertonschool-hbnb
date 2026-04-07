@@ -1,8 +1,3 @@
-
-
-
-
-
 # HBnB Evolution - Airbnb Clone Project
 
 A comprehensive learning project from Holberton School that implements a simplified Airbnb-like web application with a focus on architecture, design patterns, and backend development.
@@ -111,4 +106,3 @@ This project is part of the Holberton School curriculum.
 ## 🚀 Getting Started
 
 For detailed setup and implementation guides, refer to the documentation in each phase folder.
-
