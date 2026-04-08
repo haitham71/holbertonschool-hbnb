@@ -292,3 +292,87 @@ function setupReviewForm() {
         }
     });
 }
+
+/* =========================
+   LOGIN PAGE UI EFFECTS
+========================= */
+document.addEventListener('DOMContentLoaded', () => {
+    setupLoginBackgroundSlider();
+    setupThemeToggle();
+    setupPasswordToggle();
+});
+
+function setupLoginBackgroundSlider() {
+    if (!document.body.classList.contains('login-page')) return;
+
+    const slides = document.querySelectorAll('.login-bg-slide');
+    if (!slides.length) return;
+
+    const bgImages = [
+        'BG-IMGS/Los-angles.png',
+        'BG-IMGS/Riyadh.jpg'
+        // أضف هنا لاحقًا 3 صور أخرى
+    ];
+
+    slides.forEach((slide, index) => {
+        slide.style.backgroundImage = `url('${bgImages[index % bgImages.length]}')`;
+    });
+
+    let currentIndex = 0;
+
+    setInterval(() => {
+        const currentSlide = slides[currentIndex % slides.length];
+        const nextIndex = (currentIndex + 1) % slides.length;
+        const nextSlide = slides[nextIndex];
+
+        const nextBgIndex = (currentIndex + slides.length) % bgImages.length;
+        nextSlide.style.backgroundImage = `url('${bgImages[nextBgIndex]}')`;
+
+        currentSlide.classList.remove('active');
+        nextSlide.classList.add('active');
+
+        currentIndex = nextIndex;
+    }, 3000);
+}
+
+function setupThemeToggle() {
+    if (!document.body.classList.contains('login-page')) return;
+
+    const lightBtn = document.getElementById('light-mode-btn');
+    const darkBtn = document.getElementById('dark-mode-btn');
+    const page = document.body;
+
+    if (!lightBtn || !darkBtn) return;
+
+    lightBtn.addEventListener('click', () => {
+        page.classList.remove('dark-mode');
+        page.classList.add('light-mode');
+        lightBtn.classList.add('active');
+        darkBtn.classList.remove('active');
+    });
+
+    darkBtn.addEventListener('click', () => {
+        page.classList.remove('light-mode');
+        page.classList.add('dark-mode');
+        darkBtn.classList.add('active');
+        lightBtn.classList.remove('active');
+    });
+}
+
+function setupPasswordToggle() {
+    const passwordInput = document.getElementById('password');
+    const toggleBtn = document.getElementById('password-toggle');
+
+    if (!passwordInput || !toggleBtn) return;
+
+    toggleBtn.addEventListener('click', () => {
+        const isPasswordHidden = passwordInput.type === 'password';
+
+        passwordInput.type = isPasswordHidden ? 'text' : 'password';
+        toggleBtn.classList.toggle('active', isPasswordHidden);
+        toggleBtn.setAttribute(
+            'aria-label',
+            isPasswordHidden ? 'Hide password' : 'Show password'
+        );
+    });
+}

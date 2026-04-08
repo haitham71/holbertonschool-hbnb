@@ -1,0 +1,65 @@
+/* =========================
+   DARK MODE
+========================= */
+
+.login-page.dark-mode {
+    background: #121416;
+}
+
+.login-page.dark-mode .page-overlay {
+    background: linear-gradient(
+        to bottom,
+        rgba(15, 16, 18, 0.18),
+        rgba(15, 16, 18, 0.28)
+    );
+}
+
+.login-page.dark-mode .top-nav {
+    background: rgba(22, 24, 29, 0.42);
+}
+
+.login-page.dark-mode .nav-link {
+    color: #e8d7d7;
+}
+
+.login-page.dark-mode .is-active {
+    color: #ff7272;
+}
+
+.login-page.dark-mode .theme-toggle {
+    background: #e7d5d7;
+}
+
+.login-page.dark-mode .login-card {
+    background: linear-gradient(180deg, rgba(34, 36, 42, 0.92) 0%, rgba(24, 26, 31, 0.94) 100%);
+    box-shadow:
+        0 22px 30px rgba(0, 0, 0, 0.34),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+.login-page.dark-mode .login-card h1 {
+    color: #ff7272;
+    text-shadow: 0 4px 12px rgba(255, 114, 114, 0.18);
+}
+
+.login-page.dark-mode .login-form-custom input {
+    background: rgba(225, 225, 225, 0.9);
+    color: #444;
+}
+
+.login-page.dark-mode #error-message {
+    color: #ff8c8c;
+}
+
+.login-page.dark-mode .site-footer p {
+    color: #C8BABA;
+}
+
+.login-page.dark-mode .password-toggle:hover {
+    background: rgba(255, 114, 114, 0.14);
+}
+
+.login-page.dark-mode .password-toggle.active {
+    background: rgba(255, 114, 114, 0.18);
+    box-shadow: 0 0 0 2px rgba(255, 114, 114, 0.16);
+}

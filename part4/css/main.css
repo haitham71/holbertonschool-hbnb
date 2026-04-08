@@ -1,0 +1,87 @@
+/* =========================
+   SHARED
+========================= */
+
+.site-header {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 18px 24px 0;
+}
+
+.top-nav {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    padding: 14px 40px 14px 60px;
+
+    background: rgba(99, 99, 99, 0.34);
+
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+
+    position: relative;
+    left: -30px;
+}
+
+
+
+.nav-link {
+    text-decoration: none;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 1;
+    color: #f3dede;
+	transition: color 0.25s ease;
+
+}
+
+.is-active {
+    color: #f26161;
+}
+.nav-link:hover {
+    color: #DD5E5E;
+}
+
+.nav-link.is-active:hover {
+    color: #f26161;
+}
+
+.login-page.dark-mode .nav-link:hover {
+    color: #DD5E5E;
+}
+
+.login-page.dark-mode .nav-link.is-active:hover {
+    color: #ff7272;
+}
+
+
+.site-logo {
+    width: 180px; /* كبرناه */
+    height: auto;
+
+    margin-top: 0; /* نلغي المسافة */
+
+    transform: translateY(-70px); /* نرفعه بدون ما يأثر على layout */
+
+    margin-bottom: 86px;
+    opacity: 0.92;
+}
+
+.site-footer {
+    position: relative;
+    z-index: 3;
+    text-align: center;
+    padding: 18px 0 20px;
+    margin-top: auto;
+}
+
+.site-footer p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 500;
+    color: #8E7F7F;
+}
