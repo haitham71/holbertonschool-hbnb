@@ -15,6 +15,7 @@ class Place(BaseModel):
     price = Column(Float, nullable=False)
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
+    image_url = Column(String(500), nullable=True)
 
     # Foreign Keys
     owner_id = Column(String(36), ForeignKey('users.id'), nullable=False)
@@ -100,6 +101,7 @@ class Place(BaseModel):
             "latitude": self.latitude,
             "longitude": self.longitude,
             "owner_id": self.owner_id,
+            "image_url": self.image_url,
             "amenities": [a.to_dict() for a in self.amenities],
             "reviews": [r.to_dict() for r in self.reviews],
             "created_at": self.created_at.isoformat() if self.created_at else None,
