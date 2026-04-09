@@ -3,6 +3,9 @@ document.addEventListener('DOMContentLoaded', () => {
     checkAuthenticationAndLoadPlaces();
     checkAuthenticationAndLoadPlaceDetails();
     setupReviewForm();
+    setupIndexHeroSlider();
+    setupDatePicker();
+    setupGuestsPicker();
 });
 
 let allPlaces = [];
@@ -114,13 +117,41 @@ function displayPlaces(places) {
         card.className = 'place-card';
 
         card.innerHTML = `
-		${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-image">` : ''}
-            <h2>${place.title}</h2>
-            <p>$${place.price} / night</p>
-            <p>${place.description || 'No description'}</p>
-            <a href="place.html?id=${place.id}" class="details-button">
-                View Details
-            </a>
+            ${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-image">` : ''}
+
+            <div class="place-card-content">
+                <h2>${place.title}</h2>
+
+                <p class="place-location">
+                    ${place.description || 'No description available'}
+                </p>
+
+                <div class="place-features">
+                    <div class="feature-item">
+                        <img src="icons/wi-fi-icon.png" alt="WiFi">
+                        <span>WIFI</span>
+                    </div>
+                    <div class="feature-item">
+                        <img src="icons/balcony.png" alt="Balcony">
+                        <span>Balcony</span>
+                    </div>
+                    <div class="feature-item">
+                        <img src="icons/weight.png" alt="Gym">
+                        <span>GYM</span>
+                    </div>
+                    <div class="feature-item">
+                        <img src="icons/keys.png" alt="Valet">
+                        <span>Valet</span>
+                    </div>
+                </div>
+
+                <div class="place-card-footer">
+                    <p class="place-price">$${place.price}</p>
+                    <a href="place.html?id=${place.id}" class="details-button">
+                        View Details
+                    </a>
+                </div>
+            </div>
         `;
 
         container.appendChild(card);
@@ -336,8 +367,6 @@ function setupLoginBackgroundSlider() {
 }
 
 function setupThemeToggle() {
-    if (!document.body.classList.contains('login-page')) return;
-
     const lightBtn = document.getElementById('light-mode-btn');
     const darkBtn = document.getElementById('dark-mode-btn');
     const page = document.body;
@@ -375,4 +404,213 @@ function setupPasswordToggle() {
             isPasswordHidden ? 'Hide password' : 'Show password'
         );
     });
+}
+
+/* =========================
+   index PAGE UI EFFECTS
+========================= */
+
+function setupIndexHeroSlider() {
+    if (!document.body.classList.contains('index-page')) return;
+
+    const slides = document.querySelectorAll('.bg-slide');
+    const title = document.querySelector('.hero-title');
+
+    if (!slides.length || !title) return;
+
+    const heroData = [
+        {
+            image: 'BG-IMGS/Los-angles.png',
+            title: 'LOS ANGELES'
+        },
+        {
+            image: 'BG-IMGS/Riyadh.jpg',
+            title: 'RIYADH'
+        }
+    ];
+
+    slides.forEach((slide, index) => {
+        const item = heroData[index % heroData.length];
+        slide.style.backgroundImage = `url('${item.image}')`;
+    });
+
+    title.textContent = heroData[0].title;
+
+    let currentIndex = 0;
+
+    setInterval(() => {
+        const currentSlide = slides[currentIndex % slides.length];
+        const nextIndex = (currentIndex + 1) % slides.length;
+        const nextSlide = slides[nextIndex];
+        const nextData = heroData[nextIndex % heroData.length];
+
+        nextSlide.style.backgroundImage = `url('${nextData.image}')`;
+
+        currentSlide.classList.remove('active');
+        nextSlide.classList.add('active');
+
+        title.textContent = nextData.title;
+
+        currentIndex = nextIndex;
+    }, 5000);
+}
+
+function setupDatePicker() {
+    const wrapper = document.getElementById('date-dropdown-wrapper');
+    const trigger = document.getElementById('date-trigger');
+    const dropdown = document.getElementById('date-dropdown');
+    const input = document.getElementById('date-range-picker');
+    const applyBtn = document.getElementById('apply-dates');
+    const display = document.getElementById('date-display');
+
+    if (!wrapper || !trigger || !dropdown || !input || !applyBtn || !display) return;
+    if (typeof flatpickr === 'undefined') return;
+
+    let selectedDates = [];
+
+    const picker = flatpickr(input, {
+        mode: 'range',
+        minDate: 'today',
+        dateFormat: 'Y-m-d',
+        disableMobile: true,
+        inline: true,
+        locale: flatpickr.l10ns.default,
+        onReady: function (_, __, instance) {
+            instance.calendarContainer.setAttribute('lang', 'en');
+
+            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+            if (yearInput) {
+                yearInput.setAttribute('lang', 'en');
+                yearInput.style.direction = 'ltr';
+            }
+        },
+        onOpen: function (_, __, instance) {
+            instance.calendarContainer.setAttribute('lang', 'en');
+
+            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+            if (yearInput) {
+                yearInput.setAttribute('lang', 'en');
+                yearInput.style.direction = 'ltr';
+            }
+        },
+        onMonthChange: function (_, __, instance) {
+            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+            if (yearInput) {
+                yearInput.setAttribute('lang', 'en');
+                yearInput.style.direction = 'ltr';
+            }
+        },
+        onYearChange: function (_, __, instance) {
+            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+            if (yearInput) {
+                yearInput.setAttribute('lang', 'en');
+                yearInput.style.direction = 'ltr';
+            }
+        },
+        onChange: function(dates) {
+            selectedDates = dates;
+        }
+    });
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+
+        const guestsDropdown = document.getElementById('guests-dropdown');
+        if (guestsDropdown) guestsDropdown.classList.remove('open');
+    });
+
+    applyBtn.addEventListener('click', () => {
+        if (selectedDates.length === 2) {
+            const from = picker.formatDate(selectedDates[0], 'Y-m-d');
+            const to = picker.formatDate(selectedDates[1], 'Y-m-d');
+            display.textContent = `${from} → ${to}`;
+        } else if (selectedDates.length === 1) {
+            const from = picker.formatDate(selectedDates[0], 'Y-m-d');
+            display.textContent = `From ${from}`;
+        } else {
+            display.textContent = 'Add dates';
+        }
+
+        dropdown.classList.remove('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            dropdown.classList.remove('open');
+        }
+    });
+}
+
+function setupGuestsPicker() {
+    const wrapper = document.getElementById('guests-dropdown-wrapper');
+    const trigger = document.getElementById('guests-trigger');
+    const dropdown = document.getElementById('guests-dropdown');
+    const display = document.getElementById('guests-display');
+    const applyBtn = document.getElementById('apply-guests');
+    const buttons = document.querySelectorAll('.guest-btn');
+
+    if (!wrapper || !trigger || !dropdown || !display || !applyBtn || !buttons.length) return;
+
+    let adults = 0;
+    let children = 0;
+
+    const adultsCount = document.getElementById('adults-count');
+    const childrenCount = document.getElementById('children-count');
+
+    function updateCounts() {
+        adultsCount.textContent = adults;
+        childrenCount.textContent = children;
+    }
+
+    function updateDisplay() {
+        const total = adults + children;
+
+        if (total === 0) {
+            display.textContent = 'Add Guests';
+            return;
+        }
+
+        display.textContent = `${adults} Adults, ${children} Children`;
+    }
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+        const dateDropdown = document.getElementById('date-dropdown');
+        if (dateDropdown) dateDropdown.classList.remove('open');
+    });
+
+    buttons.forEach((button) => {
+        button.addEventListener('click', () => {
+            const target = button.dataset.target;
+            const action = button.dataset.action;
+
+            if (target === 'adults') {
+                if (action === 'increase') adults++;
+                if (action === 'decrease' && adults > 0) adults--;
+            }
+
+            if (target === 'children') {
+                if (action === 'increase') children++;
+                if (action === 'decrease' && children > 0) children--;
+            }
+
+            updateCounts();
+        });
+    });
+
+    applyBtn.addEventListener('click', () => {
+        updateDisplay();
+        dropdown.classList.remove('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            dropdown.classList.remove('open');
+        }
+    });
+
+    updateCounts();
+    updateDisplay();
 }

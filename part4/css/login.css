@@ -6,85 +6,9 @@
     min-height: 100vh;
     margin: 0;
     position: relative;
-    font-family: Arial, sans-serif;
-    background: #E9DDDD;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
-}
-
-.hero-bg {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 120%;
-    height: 62vh;
-    min-height: 520px;
-    z-index: 0;
-    overflow: hidden;
-    border-bottom-left-radius: 50% 22%;
-    border-bottom-right-radius: 50% 22%;
-}
-
-.login-bg-slide {
-    position: absolute;
-    inset: 0;
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    opacity: 0;
-    transition: opacity 1.2s ease-in-out;
-    filter: brightness(0.95) saturate(0.88);
-}
-
-.login-bg-slide.active {
-    opacity: 1;
-}
-
-.page-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(
-        to bottom,
-        rgba(233, 221, 221, 0.10),
-        rgba(233, 221, 221, 0.05)
-    );
-}
-
-.theme-toggle {
-    display: flex;
-    align-items: center;
-    gap: 0;
-    background: #f1d6d8;
-    border-radius: 22px;
-    padding: 6px;
-    box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
-}
-
-.theme-btn {
-    width: 58px;
-    height: 44px;
-    border: none;
-    background: transparent;
-    border-radius: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    transition: background-color 0.25s ease;
-}
-
-.theme-btn img {
-    width: 28px;
-    height: 28px;
-    object-fit: contain;
-}
-
-.theme-btn.active {
-    background: #e7b8bc;
 }
 
 .login-main {
@@ -138,7 +62,7 @@
 .login-form-custom input {
     width: 100%;
     height: 42px;
-	box-sizing: border-box;
+    box-sizing: border-box;
     border: none;
     outline: none;
     border-radius: 999px;
@@ -150,7 +74,6 @@
     box-shadow:
         0 6px 14px rgba(0, 0, 0, 0.14),
         0 1px 2px rgba(255, 255, 255, 0.40) inset;
-
 }
 
 .login-form-custom input::placeholder {
@@ -164,6 +87,10 @@
         0 7px 18px rgba(0, 0, 0, 0.14),
         0 1px 2px rgba(255, 255, 255, 0.42) inset,
         0 0 0 2px rgba(242, 97, 97, 0.22);
+}
+
+.login-form-custom input:focus::placeholder {
+    color: transparent;
 }
 
 #error-message {
@@ -194,21 +121,12 @@
 }
 
 .login-submit-btn:hover {
+    background: #DD5E5E;
     transform: translateY(-1px);
 }
 
 .login-submit-btn:active {
     transform: translateY(1px) scale(0.99);
-}
-
-/* Hide old shared layout on login page */
-.login-page .logo,
-.login-page .login-button {
-    display: none !important;
-}
-
-button:not(.theme-btn):hover {
-    background: #DD5E5E;
 }
 
 .password-field {
@@ -267,6 +185,8 @@ button:not(.theme-btn):hover {
     transform: scale(1.06);
 }
 
-.login-form-custom input:focus::placeholder {
-    color: transparent;
+/* Hide shared login button/logo if duplicated on login layout */
+.login-page .logo,
+.login-page .login-button {
+    display: none !important;
 }
