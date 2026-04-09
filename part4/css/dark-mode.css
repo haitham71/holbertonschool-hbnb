@@ -2,11 +2,12 @@
    DARK MODE - SHARED
 ========================= */
 
-.dark-mode {
+body.dark-mode {
     background: #121416;
+    color: #f5f5f5;
 }
 
-.dark-mode .page-overlay {
+body.dark-mode .page-overlay {
     background: linear-gradient(
         to bottom,
         rgba(15, 16, 18, 0.18),
@@ -14,56 +15,274 @@
     );
 }
 
-.dark-mode .top-nav {
+body.dark-mode .top-nav {
     background: rgba(22, 24, 29, 0.42);
 }
 
-.dark-mode .nav-link {
+body.dark-mode .nav-link {
     color: #e8d7d7;
 }
 
-.dark-mode .is-active {
-    color: #ff7272;
+body.dark-mode .nav-link:hover {
+    color: #4e3939;
 }
 
-.dark-mode .theme-toggle {
-    background: #e7d5d7;
+body.dark-mode .is-active {
+    color: #976055;
 }
 
-.dark-mode .site-footer p {
-    color: #C8BABA;
+body.dark-mode .theme-toggle {
+    background: #121416;
+}
+
+body.dark-mode .site-footer p {
+    color: #c8baba;
 }
 
 /* =========================
    DARK MODE - LOGIN PAGE
 ========================= */
 
-.login-page.dark-mode .login-card {
-    background: linear-gradient(180deg, rgba(34, 36, 42, 0.92) 0%, rgba(24, 26, 31, 0.94) 100%);
+body.login-page.dark-mode .login-card {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.92) 0%,
+        rgba(24, 26, 31, 0.94) 100%
+    );
     box-shadow:
         0 22px 30px rgba(0, 0, 0, 0.34),
         0 1px 0 rgba(255, 255, 255, 0.04) inset;
 }
 
-.login-page.dark-mode .login-card h1 {
+body.login-page.dark-mode .login-card h1 {
     color: #ff7272;
     text-shadow: 0 4px 12px rgba(255, 114, 114, 0.18);
 }
 
-.login-page.dark-mode .login-form-custom input {
+body.login-page.dark-mode .login-form-custom input {
     background: rgba(225, 225, 225, 0.9);
     color: #444;
 }
 
-.login-page.dark-mode #error-message {
+body.login-page.dark-mode #error-message {
     color: #ff8c8c;
 }
 
-.login-page.dark-mode .password-toggle:hover {
+body.login-page.dark-mode .password-toggle:hover {
     background: rgba(255, 114, 114, 0.14);
 }
 
-.login-page.dark-mode .password-toggle.active {
+body.login-page.dark-mode .password-toggle.active {
     background: rgba(255, 114, 114, 0.18);
     box-shadow: 0 0 0 2px rgba(255, 114, 114, 0.16);
+}
+
+/* =========================
+   DARK MODE - INDEX PAGE
+========================= */
+
+body.index-page.dark-mode {
+    background-color: #121212;
+    color: #f5f5f5;
+}
+
+/* Search panel */
+body.index-page.dark-mode .search-panel {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.95) 0%,
+        rgba(24, 26, 31, 0.97) 100%
+    ) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow:
+        0 22px 30px rgba(0, 0, 0, 0.35),
+        0 1px 0 rgba(255, 255, 255, 0.05) inset !important;
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    color: #f5f5f5;
+}
+
+body.index-page.dark-mode .search-item,
+body.index-page.dark-mode .search-dropdown-wrapper {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: none;
+}
+
+body.index-page.dark-mode .search-item input,
+body.index-page.dark-mode .search-item select,
+body.index-page.dark-mode .search-trigger,
+body.index-page.dark-mode .search-trigger span,
+body.index-page.dark-mode #price-filter {
+    background: transparent !important;
+    color: #f5f5f5 !important;
+}
+
+body.index-page.dark-mode .search-item input::placeholder {
+    color: #a8a8a8 !important;
+}
+
+body.index-page.dark-mode .search-dropdown {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.96) 0%,
+        rgba(24, 26, 31, 0.98) 100%
+    );
+    color: #f5f5f5;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 22px 30px rgba(0, 0, 0, 0.34),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+body.index-page.dark-mode .dropdown-label,
+body.index-page.dark-mode .guest-title,
+body.index-page.dark-mode .guest-count,
+body.index-page.dark-mode .filter-label {
+    color: #f5f5f5;
+}
+
+body.index-page.dark-mode .guest-row {
+    border-bottom-color: rgba(255, 255, 255, 0.08);
+}
+
+body.index-page.dark-mode .guest-btn,
+body.index-page.dark-mode .dropdown-apply-btn {
+    color: #976055;
+}
+
+body.index-page.dark-mode .dropdown-apply-btn::after {
+    background: #dba6a6;
+}
+
+body.index-page.dark-mode .guest-btn:hover,
+body.index-page.dark-mode .dropdown-apply-btn:hover {
+    color: #ffffff;
+}
+
+body.index-page.dark-mode .guest-btn:hover,
+body.index-page.dark-mode .dropdown-apply-btn:hover {
+    background: rgba(255, 114, 114, 0.18);
+}
+
+body.index-page.dark-mode #price-filter {
+    border-color: rgba(255, 255, 255, 0.12);
+    box-shadow: none;
+}
+
+/* Flatpickr */
+body.index-page.dark-mode .flatpickr-calendar,
+body.index-page.dark-mode .flatpickr-months,
+body.index-page.dark-mode .flatpickr-weekdays,
+body.index-page.dark-mode .flatpickr-days {
+    background: #1b1d21 !important;
+    color: #f5f5f5 !important;
+    border-color: rgba(255, 255, 255, 0.08) !important;
+}
+
+body.index-page.dark-mode .flatpickr-day {
+    color: #553939 !important;
+}
+
+body.index-page.dark-mode .flatpickr-day:hover,
+body.index-page.dark-mode .flatpickr-day:focus {
+    background: #976055 !important;
+    border-color: #976055 !important;
+}
+
+body.index-page.dark-mode .flatpickr-day.selected,
+body.index-page.dark-mode .flatpickr-day.startRange,
+body.index-page.dark-mode .flatpickr-day.endRange {
+    background: #976055;
+    border-color: #976055;
+    color: #303030;
+}
+
+/* Place cards */
+body.index-page.dark-mode .place-card {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.92) 0%,
+        rgba(24, 26, 31, 0.94) 100%
+    );
+    color: #f5f5f5;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+        0 22px 30px rgba(0, 0, 0, 0.34),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+body.index-page.dark-mode .place-card-content {
+    background: transparent;
+    color: #f5f5f5;
+}
+
+body.index-page.dark-mode .place-card h2,
+body.index-page.dark-mode .place-card h3,
+body.index-page.dark-mode .place-location,
+body.index-page.dark-mode .place-info,
+body.index-page.dark-mode .feature-item span {
+    color: #f5f5f5;
+}
+
+body.index-page.dark-mode .place-price {
+    color: #976055;
+}
+
+body.index-page.dark-mode .place-price::after {
+    color: #b9b1b1;
+}
+
+body.index-page.dark-mode .details-button {
+    color: #976055;
+    background: none !important;
+    background-color: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+}
+
+body.index-page.dark-mode .details-button::after {
+    background: #dba6a6;
+}
+
+body.index-page.dark-mode .details-button:hover {
+    color: #ffffff;
+}
+
+body.index-page.dark-mode .places-section,
+body.index-page.dark-mode .places-container,
+body.index-page.dark-mode .cards-wrapper {
+    background: #121212;
+}
+
+body.index-page.dark-mode select,
+body.index-page.dark-mode option {
+    background: #1b1b1b;
+    color: #f5f5f5;
+}
+
+body.index-page.dark-mode .muted,
+body.index-page.dark-mode .subtext,
+body.index-page.dark-mode .secondary-text {
+    color: #a8a8a8;
+}
+
+/* Icons */
+body.index-page.dark-mode .search-item img,
+body.index-page.dark-mode .search-trigger img,
+body.index-page.dark-mode .feature-item img,
+body.index-page.dark-mode .filter-label img,
+body.index-page.dark-mode .search-icon,
+body.index-page.dark-mode .filter-icon,
+body.index-page.dark-mode .guest-icon,
+body.index-page.dark-mode .date-icon {
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+}
+
+/* Logos stay normal */
+body.dark-mode .logo,
+body.dark-mode .site-logo,
+body.dark-mode .brand-logo {
+    filter: none !important;
 }

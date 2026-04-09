@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupIndexHeroSlider();
     setupDatePicker();
     setupGuestsPicker();
+    updateAuthButton();
 });
 
 let allPlaces = [];
@@ -90,7 +91,7 @@ async function fetchPlaces(token) {
         const headers = {};
         if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const response = await fetch('http://127.0.0.1:5000/api/v1/places', {
+        const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
             method: 'GET',
             headers
         });
@@ -613,4 +614,26 @@ function setupGuestsPicker() {
 
     updateCounts();
     updateDisplay();
+}
+
+function updateAuthButton() {
+    const token = getCookie('token');
+    const loginBtn = document.querySelector('.login-button');
+
+    if (!loginBtn) return;
+
+    if (token) {
+        loginBtn.textContent = 'Sign Out';
+        loginBtn.href = '#';
+
+        loginBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+
+            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+            window.location.href = 'login.html';
+        });
+    } else {
+        loginBtn.textContent = 'Login';
+        loginBtn.href = 'login.html';
+    }
 }

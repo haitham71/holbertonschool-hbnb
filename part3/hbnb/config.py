@@ -7,7 +7,7 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite:///development.db'
+    SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:Haith1100@localhost/hbnb_db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class TestingConfig(Config):
@@ -16,7 +16,10 @@ class TestingConfig(Config):
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 class ProductionConfig(Config):
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'mysql://user:pass@localhost/hbnb')
+    SQLALCHEMY_DATABASE_URI = os.getenv(
+        'DATABASE_URL',
+        'mysql+pymysql://root:Haith1100@localhost/hbnb'
+    )
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
 config = {

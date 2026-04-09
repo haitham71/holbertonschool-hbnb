@@ -23,7 +23,7 @@ body {
 .page-shell {
     min-height: 100vh;
     position: relative;
-    background: #E9DDDD;
+    background: #e9dddd;
     display: flex;
     flex-direction: column;
     overflow-x: hidden;
@@ -67,7 +67,7 @@ body {
     pointer-events: none;
     background: linear-gradient(
         to bottom,
-        rgba(233, 221, 221, 0.10),
+        rgba(233, 221, 221, 0.1),
         rgba(233, 221, 221, 0.05)
     );
 }
@@ -104,18 +104,18 @@ body {
     border: none;
     border-radius: 999px;
     text-decoration: none;
-    background: linear-gradient(180deg, #EACDCE 0%, #DDBBBC 100%);
+    background: linear-gradient(180deg, #eacdce 0%, #ddbbbc 100%);
     color: #ffffff;
     font-size: 15px;
     font-weight: 800;
     box-shadow:
         0 7px 16px rgba(0, 0, 0, 0.16),
-        0 1px 2px rgba(255, 255, 255, 0.40) inset;
+        0 1px 2px rgba(255, 255, 255, 0.4) inset;
     transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.2s ease;
 }
 
 .login-button:hover {
-    background: #DD5E5E;
+    background: #dd5e5e;
     transform: translateY(-1px);
 }
 
@@ -146,11 +146,11 @@ body {
 }
 
 .is-active {
-    color: #f26161;
+    color: #976055;
 }
 
 .nav-link:hover {
-    color: #DD5E5E;
+    color: #4e3939;
 }
 
 .nav-link.is-active:hover {
@@ -169,7 +169,7 @@ body {
     margin: 0;
     font-size: 14px;
     font-weight: 500;
-    color: #8E7F7F;
+    color: #8e7f7f;
 }
 
 /* =========================
@@ -180,11 +180,13 @@ body {
     display: flex;
     align-items: center;
     gap: 0;
-    background: #f1d6d8;
+    background: #e9dddd;
     border-radius: 22px;
     padding: 6px;
     box-shadow: 0 4px 18px rgba(0, 0, 0, 0.12);
 }
+
+
 
 .theme-btn {
     width: 58px;
@@ -206,5 +208,5 @@ body {
 }
 
 .theme-btn.active {
-    background: #e7b8bc;
+    background: #a67166;
 }
