@@ -1,12 +1,15 @@
 document.addEventListener('DOMContentLoaded', () => {
     setupLoginForm();
+    updateAuthNavLink();
     checkAuthenticationAndLoadPlaces();
     checkAuthenticationAndLoadPlaceDetails();
     setupReviewForm();
     setupIndexHeroSlider();
     setupDatePicker();
     setupGuestsPicker();
-    updateAuthButton();
+    setupLoginBackgroundSlider();
+    setupThemeToggle();
+    setupPasswordToggle();
 });
 
 let allPlaces = [];
@@ -31,7 +34,7 @@ function setupLoginForm() {
         try {
             const response = await fetch('http://127.0.0.1:5000/api/v1/users/login', {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password })
             });
 
@@ -65,7 +68,36 @@ function getCookie(name) {
             return cookie.substring(name.length + 1);
         }
     }
+
     return null;
+}
+
+function clearCookie(name) {
+    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+}
+
+/* =========================
+   Auth Nav Link
+========================= */
+function updateAuthNavLink() {
+    const token = getCookie('token');
+    const loginLink = document.getElementById('login-link');
+
+    if (!loginLink) return;
+
+    if (token) {
+        loginLink.textContent = 'Sign Out';
+        loginLink.href = '#';
+        loginLink.onclick = function (e) {
+            e.preventDefault();
+            clearCookie('token');
+            window.location.href = 'login.html';
+        };
+    } else {
+        loginLink.textContent = 'Login';
+        loginLink.href = 'login.html';
+        loginLink.onclick = null;
+    }
 }
 
 /* =========================
@@ -76,12 +108,8 @@ function checkAuthenticationAndLoadPlaces() {
     if (!placesList) return;
 
     const token = getCookie('token');
-    const loginLink = document.getElementById('login-link');
 
-    if (loginLink) {
-        loginLink.style.display = token ? 'none' : 'inline-block';
-    }
-
+    updateAuthNavLink();
     fetchPlaces(token);
     setupPriceFilter();
 }
@@ -102,8 +130,10 @@ async function fetchPlaces(token) {
         allPlaces = data;
         displayPlaces(allPlaces);
     } catch {
-        document.getElementById('places-list').innerHTML =
-            '<p>Failed to load places.</p>';
+        const placesList = document.getElementById('places-list');
+        if (placesList) {
+            placesList.innerHTML = '<p>Failed to load places.</p>';
+        }
     }
 }
 
@@ -172,7 +202,6 @@ function setupPriceFilter() {
         }
 
         const max = Number(value);
-
         const filtered = allPlaces.filter(p => p.price <= max);
         displayPlaces(filtered);
     });
@@ -186,13 +215,10 @@ function checkAuthenticationAndLoadPlaceDetails() {
     if (!section) return;
 
     const token = getCookie('token');
-    const loginLink = document.getElementById('login-link');
     const addReviewSection = document.getElementById('add-review');
     const placeId = getPlaceIdFromURL();
 
-    if (loginLink) {
-        loginLink.style.display = token ? 'none' : 'inline-block';
-    }
+    updateAuthNavLink();
 
     if (addReviewSection) {
         addReviewSection.style.display = token ? 'block' : 'none';
@@ -226,14 +252,18 @@ async function fetchPlaceDetails(token, placeId) {
         const place = await response.json();
         displayPlaceDetails(place);
     } catch {
-        document.getElementById('place-details').innerHTML =
-            '<p>Error loading place.</p>';
+        const placeDetails = document.getElementById('place-details');
+        if (placeDetails) {
+            placeDetails.innerHTML = '<p>Error loading place.</p>';
+        }
     }
 }
 
 function displayPlaceDetails(place) {
     const section = document.getElementById('place-details');
     const addReview = document.getElementById('add-review');
+
+    if (!section) return;
 
     const amenities = place.amenities?.length
         ? `<ul>${place.amenities.map(a => `<li>${a.name}</li>`).join('')}</ul>`
@@ -297,7 +327,7 @@ function setupReviewForm() {
         const text = document.getElementById('review-text').value.trim();
         const rating = Number(document.getElementById('rating').value);
 
-        msg.textContent = '';
+        if (msg) msg.textContent = '';
 
         try {
             const res = await fetch('http://127.0.0.1:5000/api/v1/reviews/', {
@@ -314,13 +344,13 @@ function setupReviewForm() {
             });
 
             if (res.ok) {
-                msg.textContent = 'Review submitted successfully!';
+                if (msg) msg.textContent = 'Review submitted successfully!';
                 form.reset();
             } else {
-                msg.textContent = 'Failed to submit review.';
+                if (msg) msg.textContent = 'Failed to submit review.';
             }
         } catch {
-            msg.textContent = 'Server error.';
+            if (msg) msg.textContent = 'Server error.';
         }
     });
 }
@@ -328,12 +358,6 @@ function setupReviewForm() {
 /* =========================
    LOGIN PAGE UI EFFECTS
 ========================= */
-document.addEventListener('DOMContentLoaded', () => {
-    setupLoginBackgroundSlider();
-    setupThemeToggle();
-    setupPasswordToggle();
-});
-
 function setupLoginBackgroundSlider() {
     if (!document.body.classList.contains('login-page')) return;
 
@@ -343,7 +367,6 @@ function setupLoginBackgroundSlider() {
     const bgImages = [
         'BG-IMGS/Los-angles.png',
         'BG-IMGS/Riyadh.jpg'
-        // أضف هنا لاحقًا 3 صور أخرى
     ];
 
     slides.forEach((slide, index) => {
@@ -408,9 +431,8 @@ function setupPasswordToggle() {
 }
 
 /* =========================
-   index PAGE UI EFFECTS
+   INDEX PAGE UI EFFECTS
 ========================= */
-
 function setupIndexHeroSlider() {
     if (!document.body.classList.contains('index-page')) return;
 
@@ -508,7 +530,7 @@ function setupDatePicker() {
                 yearInput.style.direction = 'ltr';
             }
         },
-        onChange: function(dates) {
+        onChange: function (dates) {
             selectedDates = dates;
         }
     });
@@ -578,6 +600,7 @@ function setupGuestsPicker() {
     trigger.addEventListener('click', (e) => {
         e.stopPropagation();
         dropdown.classList.toggle('open');
+
         const dateDropdown = document.getElementById('date-dropdown');
         if (dateDropdown) dateDropdown.classList.remove('open');
     });
@@ -614,26 +637,4 @@ function setupGuestsPicker() {
 
     updateCounts();
     updateDisplay();
-}
-
-function updateAuthButton() {
-    const token = getCookie('token');
-    const loginBtn = document.querySelector('.login-button');
-
-    if (!loginBtn) return;
-
-    if (token) {
-        loginBtn.textContent = 'Sign Out';
-        loginBtn.href = '#';
-
-        loginBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-
-            document.cookie = 'token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-            window.location.href = 'login.html';
-        });
-    } else {
-        loginBtn.textContent = 'Login';
-        loginBtn.href = 'login.html';
-    }
 }
