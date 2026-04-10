@@ -2,8 +2,11 @@ from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
+from app.models.place import Place
+from app.models.place_image import PlaceImage
 from app.services.repositories import UserRepository, PlaceRepository, ReviewRepository, AmenityRepository
 from app import db
+
 
 class HBnBFacade:
     def __init__(self):
@@ -160,6 +163,23 @@ class HBnBFacade:
         except (ValueError, TypeError) as e:
             return False, str(e)
 
+    def create_place(self, place_data):
+        try:
+            extra_images = place_data.pop("images", [])
+            place = Place(**place_data)
+            self.place_repository.add(place)
+
+            for image_url in extra_images:
+                image = PlaceImage(place_id=place.id, image_url=image_url)
+                db.session.add(image)
+
+            db.session.commit()
+            return True, place
+
+        except Exception as e:
+            db.session.rollback()
+            return False, str(e)
+
     # ================= REVIEWS =================
     def create_review(self, review_data):
         try:
@@ -179,7 +199,8 @@ class HBnBFacade:
                 return False, "You cannot review your own place"
 
             # Check if user already reviewed this place
-            existing_reviews = self.review_repository.get_reviews_by_place(place_id)
+            existing_reviews = self.review_repository.get_reviews_by_place(
+                place_id)
             for review in existing_reviews:
                 if review.user_id == user.id:
                     return False, "You have already reviewed this place"

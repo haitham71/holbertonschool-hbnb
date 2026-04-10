@@ -1,0 +1,1 @@
+from app.models.place_image import PlaceImage

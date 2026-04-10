@@ -27,6 +27,12 @@ class Place(BaseModel):
                              backref=db.backref('places', lazy=True))
     reviews = relationship('Review', back_populates='place',
                            lazy=True, cascade='all, delete-orphan')
+    
+    images = relationship(
+    'PlaceImage',
+    back_populates='place',
+    lazy=True,
+    cascade='all, delete-orphan')
 
     def __init__(self, **kwargs):
         """Initialize place"""
@@ -113,6 +119,7 @@ class Place(BaseModel):
             "owner_id": self.owner_id,
             "image_url": self.image_url,
             "max_guests": self.max_guests,
+            "images": [img.to_dict() for img in self.images],
             "amenities": [a.to_dict() for a in self.amenities],
             "reviews": [r.to_dict() for r in self.reviews],
             "created_at": self.created_at.isoformat() if self.created_at else None,
