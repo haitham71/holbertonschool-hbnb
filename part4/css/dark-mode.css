@@ -286,3 +286,52 @@ body.dark-mode .site-logo,
 body.dark-mode .brand-logo {
     filter: none !important;
 }
+
+body.index-page.dark-mode .price-trigger {
+    background: transparent;
+    border-color: rgba(255, 255, 255, 0.14);
+    box-shadow: none;
+}
+
+body.index-page.dark-mode .price-trigger span {
+    color: #f5f5f5;
+}
+
+body.index-page.dark-mode .price-trigger img {
+    filter: brightness(0) invert(1);
+    opacity: 0.92;
+}
+
+body.index-page.dark-mode .price-value-box {
+    background: rgba(158, 87, 72, 0.14);
+}
+
+body.index-page.dark-mode .price-value-label,
+body.index-page.dark-mode .range-label,
+body.index-page.dark-mode #min-price-value,
+body.index-page.dark-mode #max-price-value {
+    color: #9e5748;
+}
+
+body.index-page.dark-mode #min-price-range,
+body.index-page.dark-mode #max-price-range {
+    background: rgba(158, 87, 72, 0.28);
+}
+
+body.index-page.dark-mode #min-price-range::-webkit-slider-runnable-track,
+body.index-page.dark-mode #max-price-range::-webkit-slider-runnable-track {
+    background: rgba(158, 87, 72, 0.28);
+}
+
+body.index-page.dark-mode #min-price-range::-moz-range-track,
+body.index-page.dark-mode #max-price-range::-moz-range-track {
+    background: rgba(158, 87, 72, 0.28);
+}
+
+body.index-page.dark-mode #min-price-range::-webkit-slider-thumb,
+body.index-page.dark-mode #max-price-range::-webkit-slider-thumb,
+body.index-page.dark-mode #min-price-range::-moz-range-thumb,
+body.index-page.dark-mode #max-price-range::-moz-range-thumb {
+    background: #9e5748;
+    border: 2px solid #1b1d21;
+}

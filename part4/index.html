@@ -2,136 +2,165 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Places - HBnB</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Places - HBnB</title>
 
-    <link rel="stylesheet" href="css/main.css">
-    <link rel="stylesheet" href="css/index.css">
-    <link rel="stylesheet" href="css/dark-mode.css">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+	<link rel="stylesheet" href="css/main.css">
+	<link rel="stylesheet" href="css/index.css">
+	<link rel="stylesheet" href="css/dark-mode.css">
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 </head>
 
 <body class="page-shell index-page light-mode">
 
-    <div class="hero-bg">
-        <div class="bg-slide active"></div>
-        <div class="bg-slide"></div>
-    </div>
+	<div class="hero-bg">
+		<div class="bg-slide active"></div>
+		<div class="bg-slide"></div>
+		<div class="bg-slide"></div>
+	</div>
 
-    <div class="page-overlay"></div>
+	<div class="page-overlay"></div>
 
-    <header class="site-header">
-        <nav class="top-nav">
-            <a href="index.html" class="nav-link is-active">Home</a>
-            <a href="login.html" class="nav-link" id="login-link">Login</a>
-            <a href="#" class="nav-link">Add place</a>
-        </nav>
+	<header class="site-header">
+		<nav class="top-nav">
+			<a href="index.html" class="nav-link is-active">Home</a>
+			<a href="login.html" class="nav-link" id="login-link">Login</a>
+			<a href="#" class="nav-link">Add place</a>
+		</nav>
 
-        <img src="logo.png" alt="HBnB Logo" class="site-logo">
+		<img src="logo.png" alt="HBnB Logo" class="site-logo">
 
-        <div class="theme-toggle">
-            <button class="theme-btn active" id="light-mode-btn" type="button" aria-label="Light mode">
-                <img src="icons/sun.png" alt="Light mode">
-            </button>
-            <button class="theme-btn" id="dark-mode-btn" type="button" aria-label="Dark mode">
-                <img src="icons/moon.png" alt="Dark mode">
-            </button>
-        </div>
-    </header>
+		<div class="theme-toggle">
+			<button class="theme-btn active" id="light-mode-btn" type="button" aria-label="Light mode">
+				<img src="icons/sun.png" alt="Light mode">
+			</button>
+			<button class="theme-btn" id="dark-mode-btn" type="button" aria-label="Dark mode">
+				<img src="icons/moon.png" alt="Dark mode">
+			</button>
+		</div>
+	</header>
 
-    <main class="index-main">
-        <section class="hero-content">
-            <h1 class="hero-title">LOS ANGELES</h1>
-        </section>
+	<main class="index-main">
+		<section class="hero-content">
+			<h1 class="hero-title">LOS ANGELES</h1>
+		</section>
 
-        <section class="search-panel-wrapper">
-            <div class="search-panel">
-                <div class="search-item">
-                    <img src="icons/location.png" alt="Location">
-                    <input type="text" placeholder="City / Place name">
-                </div>
+		<section class="search-panel-wrapper">
+			<div class="search-panel">
+				<div class="search-item">
+					<img src="icons/location.png" alt="Location">
+					<input type="text" placeholder="City / Place name">
+				</div>
 
-                <div class="search-item search-dropdown-wrapper" id="date-dropdown-wrapper">
-                    <button type="button" class="search-trigger" id="date-trigger">
-                        <img src="icons/calendar.png" alt="Dates">
-                        <span id="date-display">Add dates</span>
-                    </button>
+				<div class="search-item search-dropdown-wrapper" id="date-dropdown-wrapper">
+					<button type="button" class="search-trigger" id="date-trigger">
+						<img src="icons/calendar.png" alt="Dates">
+						<span id="date-display">Add dates</span>
+					</button>
 
-                    <div class="search-dropdown date-dropdown" id="date-dropdown">
-                        <label class="dropdown-label" for="date-range-picker">Select stay dates</label>
-                        <input type="text" id="date-range-picker" placeholder="Choose check-in and check-out" readonly>
+					<div class="search-dropdown date-dropdown" id="date-dropdown">
+						<label class="dropdown-label" for="date-range-picker">Select stay dates</label>
+						<input type="text" id="date-range-picker" placeholder="Choose check-in and check-out" readonly>
 
-                        <button type="button" class="dropdown-apply-btn" id="apply-dates">
-                            Apply
-                        </button>
-                    </div>
-                </div>
+						<button type="button" class="dropdown-apply-btn" id="apply-dates">
+							Apply
+						</button>
+					</div>
+				</div>
 
-                <div class="search-item search-dropdown-wrapper" id="guests-dropdown-wrapper">
-                    <button type="button" class="search-trigger" id="guests-trigger">
-                        <img src="icons/Guests-icon.png" alt="Guests">
-                        <span id="guests-display">Add Guests</span>
-                    </button>
+				<div class="search-item search-dropdown-wrapper" id="guests-dropdown-wrapper">
+					<button type="button" class="search-trigger" id="guests-trigger">
+						<img src="icons/Guests-icon.png" alt="Guests">
+						<span id="guests-display">Add Guests</span>
+					</button>
 
-                    <div class="search-dropdown guests-dropdown" id="guests-dropdown">
-                        <div class="guest-row">
-                            <div class="guest-labels">
-                                <span class="guest-title">Adults</span>
-                            </div>
+					<div class="search-dropdown guests-dropdown" id="guests-dropdown">
+						<div class="guest-row">
+							<div class="guest-labels">
+								<span class="guest-title">Adults</span>
+							</div>
 
-                            <div class="guest-controls">
-                                <button type="button" class="guest-btn" data-target="adults" data-action="decrease">-</button>
-                                <span class="guest-count" id="adults-count">0</span>
-                                <button type="button" class="guest-btn" data-target="adults" data-action="increase">+</button>
-                            </div>
-                        </div>
+							<div class="guest-controls">
+								<button type="button" class="guest-btn" data-target="adults"
+									data-action="decrease">-</button>
+								<span class="guest-count" id="adults-count">0</span>
+								<button type="button" class="guest-btn" data-target="adults"
+									data-action="increase">+</button>
+							</div>
+						</div>
 
-                        <div class="guest-row">
-                            <div class="guest-labels">
-                                <span class="guest-title">Children</span>
-                            </div>
+						<div class="guest-row">
+							<div class="guest-labels">
+								<span class="guest-title">Children</span>
+							</div>
 
-                            <div class="guest-controls">
-                                <button type="button" class="guest-btn" data-target="children" data-action="decrease">-</button>
-                                <span class="guest-count" id="children-count">0</span>
-                                <button type="button" class="guest-btn" data-target="children" data-action="increase">+</button>
-                            </div>
-                        </div>
+							<div class="guest-controls">
+								<button type="button" class="guest-btn" data-target="children"
+									data-action="decrease">-</button>
+								<span class="guest-count" id="children-count">0</span>
+								<button type="button" class="guest-btn" data-target="children"
+									data-action="increase">+</button>
+							</div>
+						</div>
 
-                        <button type="button" class="dropdown-apply-btn" id="apply-guests">
-                            Apply
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </section>
+						<button type="button" class="dropdown-apply-btn" id="apply-guests">
+							Apply
+						</button>
+					</div>
+				</div>
+			</div>
+		</section>
 
-        <section class="filter-row">
-            <label for="price-filter" class="filter-label">
-                <img src="icons/filter.png" alt="Filter">
-                <span>Filter by price</span>
-            </label>
+		<div class="filter-row">
+			<div class="search-dropdown-wrapper filter-dropdown-wrapper" id="price-dropdown-wrapper">
+				<button type="button" class="search-trigger price-trigger" id="price-trigger">
+					<img src="icons/filter.png" alt="Price">
+					<span id="price-display">Price</span>
+				</button>
 
-            <select id="price-filter">
-                <option value="all">All</option>
-                <option value="10">10</option>
-                <option value="50">50</option>
-                <option value="100">100</option>
-            </select>
-        </section>
+				<div class="search-dropdown price-dropdown" id="price-dropdown">
+					<label class="dropdown-label">Select price range</label>
 
-        <section id="places-list" class="places-container">
-            <!-- Places will be inserted here dynamically -->
-        </section>
-    </main>
+					<div class="price-range-values">
+						<div class="price-value-box">
+							<span class="price-value-label">Min</span>
+							<span id="min-price-value">50</span>
+						</div>
+						<div class="price-value-box">
+							<span class="price-value-label">Max</span>
+							<span id="max-price-value">4000</span>
+						</div>
+					</div>
 
-    <footer class="site-footer">
-        <p>All rights reserved</p>
-    </footer>
+					<div class="price-range-group">
+						<label for="min-price-range" class="range-label">Minimum price</label>
+						<input type="range" id="min-price-range" min="50" max="4000" step="50" value="50">
+					</div>
 
-    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="scripts.js"></script>
+					<div class="price-range-group">
+						<label for="max-price-range" class="range-label">Maximum price</label>
+						<input type="range" id="max-price-range" min="50" max="4000" step="50" value="4000">
+					</div>
+
+					<button type="button" class="dropdown-apply-btn" id="apply-price">
+						Apply
+					</button>
+				</div>
+			</div>
+		</div>
+
+		<section id="places-list" class="places-container">
+			<!-- Places will be inserted here dynamically -->
+		</section>
+	</main>
+
+	<footer class="site-footer">
+		<p>All rights reserved</p>
+	</footer>
+
+	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+	<script src="scripts.js"></script>
 </body>
 
 </html>

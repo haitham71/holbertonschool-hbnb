@@ -190,22 +190,76 @@ function displayPlaces(places) {
 }
 
 function setupPriceFilter() {
-    const filter = document.getElementById('price-filter');
-    if (!filter) return;
+    const wrapper = document.getElementById('price-dropdown-wrapper');
+    const trigger = document.getElementById('price-trigger');
+    const dropdown = document.getElementById('price-dropdown');
+    const minRange = document.getElementById('min-price-range');
+    const maxRange = document.getElementById('max-price-range');
+    const minValue = document.getElementById('min-price-value');
+    const maxValue = document.getElementById('max-price-value');
+    const display = document.getElementById('price-display');
+    const applyBtn = document.getElementById('apply-price');
 
-    filter.addEventListener('change', (e) => {
-        const value = e.target.value;
+    if (
+        !wrapper || !trigger || !dropdown || !minRange || !maxRange ||
+        !minValue || !maxValue || !display || !applyBtn
+    ) return;
 
-        if (value === 'all') {
-            displayPlaces(allPlaces);
-            return;
+    function syncRanges(changed) {
+        let min = Number(minRange.value);
+        let max = Number(maxRange.value);
+
+        if (min > max) {
+            if (changed === 'min') {
+                max = min;
+                maxRange.value = max;
+            } else {
+                min = max;
+                minRange.value = min;
+            }
         }
 
-        const max = Number(value);
-        const filtered = allPlaces.filter(p => p.price <= max);
-        displayPlaces(filtered);
+        minValue.textContent = min;
+        maxValue.textContent = max;
+    }
+
+    minRange.addEventListener('input', () => syncRanges('min'));
+    maxRange.addEventListener('input', () => syncRanges('max'));
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('open');
+
+        const dateDropdown = document.getElementById('date-dropdown');
+        const guestsDropdown = document.getElementById('guests-dropdown');
+
+        if (dateDropdown) dateDropdown.classList.remove('open');
+        if (guestsDropdown) guestsDropdown.classList.remove('open');
     });
-}
+
+    applyBtn.addEventListener('click', () => {
+        const min = Number(minRange.value);
+        const max = Number(maxRange.value);
+
+        display.textContent = `$${min} - $${max}`;
+
+        const filtered = allPlaces.filter(place => {
+            const price = Number(place.price);
+            return price >= min && price <= max;
+        });
+
+        displayPlaces(filtered);
+        dropdown.classList.remove('open');
+    });
+
+    document.addEventListener('click', (e) => {
+        if (!wrapper.contains(e.target)) {
+            dropdown.classList.remove('open');
+        }
+    });
+
+    syncRanges();
+}	
 
 /* =========================
    PLACE DETAILS PAGE
@@ -366,7 +420,8 @@ function setupLoginBackgroundSlider() {
 
     const bgImages = [
         'BG-IMGS/Los-angles.png',
-        'BG-IMGS/Riyadh.jpg'
+        'BG-IMGS/Riyadh.jpg',
+		'BG-IMGS/Dubai.jpg'
     ];
 
     slides.forEach((slide, index) => {
@@ -444,12 +499,16 @@ function setupIndexHeroSlider() {
     const heroData = [
         {
             image: 'BG-IMGS/Los-angles.png',
-            title: 'LOS ANGELES'
+            title: 'LOS ANGLES'
         },
         {
             image: 'BG-IMGS/Riyadh.jpg',
             title: 'RIYADH'
-        }
+        },
+        {
+            image: 'BG-IMGS/Dubai.jpg',
+            title: 'DUBAI'
+        },
     ];
 
     slides.forEach((slide, index) => {
