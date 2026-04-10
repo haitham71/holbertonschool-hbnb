@@ -511,3 +511,165 @@ body.place-page.dark-mode .details-button::after {
 body.place-page.dark-mode .details-button:hover {
     color: #ff9c9c;
 }
+
+body.place-page.dark-mode .booking-date-label {
+    color: #d7c7c7;
+}
+
+body.place-page.dark-mode .booking-date-input {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f5f5f5;
+}
+
+body.place-page.dark-mode .booking-date-input:focus {
+    border-color: #9e5748;
+    box-shadow: 0 0 0 3px rgba(158, 87, 72, 0.16);
+}
+
+body.place-page.dark-mode .booking-summary-row strong,
+body.place-page.dark-mode .booking-summary-row span {
+    color: #ffffff;
+}
+
+body.place-page.dark-mode .booking-date-trigger {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+}
+
+body.place-page.dark-mode .booking-date-trigger-label {
+    color: #c7bcbc;
+}
+
+body.place-page.dark-mode #booking-date-display {
+    color: #ffffff;
+}
+
+body.place-page.dark-mode .booking-date-dropdown {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.96) 0%,
+        rgba(24, 26, 31, 0.98) 100%
+    );
+    color: #f5f5f5;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow:
+        0 22px 30px rgba(0, 0, 0, 0.34),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+body.place-page.dark-mode #booking-date-range-picker {
+    color: #f5f5f5;
+}
+
+body.place-page.dark-mode .inline-review-card {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.92) 0%,
+        rgba(24, 26, 31, 0.95) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+        0 20px 28px rgba(0, 0, 0, 0.35),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+body.place-page.dark-mode .inline-review-card h3,
+body.place-page.dark-mode .inline-review-form label,
+body.place-page.dark-mode .inline-review-login-note {
+    color: #f5f5f5;
+}
+
+body.place-page.dark-mode .inline-review-form select,
+body.place-page.dark-mode .inline-review-form textarea {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f5f5f5;
+}
+
+body.place-page.dark-mode .inline-review-form select:focus,
+body.place-page.dark-mode .inline-review-form textarea:focus {
+    border-color: #9e5748;
+    box-shadow: 0 0 0 3px rgba(158, 87, 72, 0.16);
+}
+
+body.place-page.dark-mode .inline-review-message {
+    color: #dba6a6;
+}
+
+body.place-page.dark-mode .star {
+    color: rgba(255,255,255,0.2);
+}
+
+body.place-page.dark-mode .star.active {
+    color: #ff7272;
+}
+
+body.dark-mode .form-section,
+body.dark-mode .main-image-box,
+body.dark-mode .gallery-box {
+    background: linear-gradient(
+        180deg,
+        rgba(34,36,42,0.92),
+        rgba(24,26,31,0.95)
+    );
+}
+
+body.dark-mode input,
+body.dark-mode textarea {
+    background: rgba(255,255,255,0.06);
+    color: white;
+}
+
+/* =========================
+   DARK MODE - ADD PLACE PAGE
+========================= */
+
+body.add-place-page.dark-mode .add-place-card,
+body.add-place-page.dark-mode .preview-gallery-card,
+body.add-place-page.dark-mode .image-links-card,
+body.add-place-page.dark-mode .amenities-card {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.92) 0%,
+        rgba(24, 26, 31, 0.95) 100%
+    );
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    box-shadow:
+        0 20px 28px rgba(0, 0, 0, 0.35),
+        0 1px 0 rgba(255, 255, 255, 0.04) inset;
+}
+
+body.add-place-page.dark-mode .add-place-card h1,
+body.add-place-page.dark-mode .add-place-form label,
+body.add-place-page.dark-mode .image-link-group label,
+body.add-place-page.dark-mode .amenity-item {
+    color: #f5f5f5;
+}
+
+body.add-place-page.dark-mode .add-place-form input,
+body.add-place-page.dark-mode .add-place-form textarea,
+body.add-place-page.dark-mode .image-link-row input {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.12);
+    color: #f5f5f5;
+}
+
+body.add-place-page.dark-mode .add-place-form input:focus,
+body.add-place-page.dark-mode .add-place-form textarea:focus,
+body.add-place-page.dark-mode .image-link-row input:focus {
+    border-color: #9e5748;
+    box-shadow: 0 0 0 3px rgba(158, 87, 72, 0.16);
+}
+
+body.add-place-page.dark-mode .image-add-btn {
+    color: #f5f5f5;
+}
+
+body.add-place-page.dark-mode .preview-gallery-item {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+body.add-place-page.dark-mode .add-place-message {
+    color: #dba6a6;
+}

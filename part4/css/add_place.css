@@ -1,0 +1,208 @@
+/* =========================
+   ADD PLACE PAGE
+========================= */
+
+.add-place-page {
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.add-place-page .hero-bg {
+    height: 34vh;
+    min-height: 260px;
+}
+
+.add-place-main {
+    position: relative;
+    z-index: 10;
+    width: calc(100% - 70px);
+    max-width: 1380px;
+    margin: -8px auto 40px;
+}
+
+.add-place-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 400px;
+    gap: 34px;
+    align-items: start;
+}
+
+.add-place-left {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.add-place-card,
+.preview-gallery-card,
+.image-links-card,
+.amenities-card {
+    background: transparent;
+    border: 2px solid rgba(54, 45, 45, 0.72);
+    border-radius: 24px;
+    padding: 20px 22px;
+}
+
+.add-place-card h1 {
+    margin: 0 0 20px 0;
+    font-size: 28px;
+    font-weight: 800;
+    color: #111111;
+}
+
+.add-place-form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.add-place-form label,
+.image-link-group label {
+    font-size: 15px;
+    font-weight: 800;
+    color: #111111;
+}
+
+.add-place-form input,
+.add-place-form textarea,
+.image-link-row input {
+    width: 100%;
+    border: 1.5px solid rgba(79, 68, 68, 0.45);
+    background: #d9d9d9;
+    color: #444;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.add-place-form input,
+.image-link-row input {
+    height: 40px;
+    border-radius: 999px;
+    padding: 0 14px;
+}
+
+.add-place-form textarea {
+    min-height: 110px;
+    border-radius: 20px;
+    padding: 14px;
+    resize: vertical;
+}
+
+.full-desc-price-row {
+    display: grid;
+    grid-template-columns: 1fr 170px;
+    gap: 14px;
+    align-items: end;
+}
+
+.extra-fields-row {
+    display: grid;
+    grid-template-columns: 180px 1fr;
+    gap: 14px;
+}
+
+.add-place-message {
+    min-height: 22px;
+    margin: 2px 0 0 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9e5748;
+}
+
+.add-place-submit-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 6px;
+}
+
+/* =========================
+   IMAGE LINKS
+========================= */
+
+.add-place-right {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.image-links-card {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.image-link-group {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.image-link-row {
+    display: grid;
+    grid-template-columns: 1fr 46px;
+    gap: 10px;
+    align-items: center;
+}
+
+.image-add-btn {
+    width: 46px;
+    height: 40px;
+    border: none;
+    background: none;
+    color: #111111;
+    font-size: 30px;
+    font-weight: 800;
+    cursor: pointer;
+    line-height: 1;
+}
+
+/* =========================
+   PREVIEW GALLERY
+========================= */
+
+.preview-gallery {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    min-height: 140px;
+}
+
+.preview-gallery-item {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #d9d9d9;
+}
+
+.preview-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+/* =========================
+   AMENITIES
+========================= */
+
+.amenities-list {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px 20px;
+}
+
+.amenity-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #2f2727;
+}
+
+.amenity-item input[type="checkbox"] {
+    width: 18px;
+    height: 18px;
+    accent-color: #9e5748;
+}
