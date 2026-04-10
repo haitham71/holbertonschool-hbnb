@@ -1,6 +1,6 @@
 #!/usr/bin/python3
 """Place model module for the application."""
-from sqlalchemy import Column, String, Float, ForeignKey, Text
+from sqlalchemy import Column, String, Float, ForeignKey, Text, Integer
 from sqlalchemy.orm import validates, relationship
 from app.models.basemodel import BaseModel, db
 
@@ -16,6 +16,7 @@ class Place(BaseModel):
     latitude = Column(Float, nullable=False)
     longitude = Column(Float, nullable=False)
     image_url = Column(String(500), nullable=True)
+    max_guests = Column(Integer, nullable=False, default=1)
 
     # Foreign Keys
     owner_id = Column(String(36), ForeignKey('users.id'), nullable=False)
@@ -24,7 +25,8 @@ class Place(BaseModel):
     # Relationships
     amenities = relationship('Amenity', secondary='place_amenity', lazy='subquery',
                              backref=db.backref('places', lazy=True))
-    reviews = relationship('Review', back_populates='place', lazy=True, cascade='all, delete-orphan')
+    reviews = relationship('Review', back_populates='place',
+                           lazy=True, cascade='all, delete-orphan')
 
     def __init__(self, **kwargs):
         """Initialize place"""
@@ -71,6 +73,14 @@ class Place(BaseModel):
             raise ValueError("Longitude must be between -180 and 180")
         return float(lon)
 
+    @validates('max_guests')
+    def validate_max_guests(self, key, value):
+        if not isinstance(value, int):
+            raise TypeError("max_guests must be an integer")
+        if value <= 0:
+            raise ValueError("max_guests must be greater than 0")
+        return value
+
     # ----------------------
     # Amenity methods
     # ----------------------
@@ -102,6 +112,7 @@ class Place(BaseModel):
             "longitude": self.longitude,
             "owner_id": self.owner_id,
             "image_url": self.image_url,
+            "max_guests": self.max_guests,
             "amenities": [a.to_dict() for a in self.amenities],
             "reviews": [r.to_dict() for r in self.reviews],
             "created_at": self.created_at.isoformat() if self.created_at else None,

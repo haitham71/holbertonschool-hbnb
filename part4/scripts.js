@@ -7,147 +7,153 @@ document.addEventListener('DOMContentLoaded', () => {
     setupIndexHeroSlider();
     setupDatePicker();
     setupGuestsPicker();
+    setupSearchButton();
     setupLoginBackgroundSlider();
     setupThemeToggle();
     setupPasswordToggle();
 });
 
 let allPlaces = [];
+let selectedGuests = 0;
+let selectedDateRange = {
+	from: null,
+	to: null
+};
 
 /* =========================
    Login Page
 ========================= */
 function setupLoginForm() {
-    const loginForm = document.getElementById('login-form');
-    const errorMessage = document.getElementById('error-message');
+	const loginForm = document.getElementById('login-form');
+	const errorMessage = document.getElementById('error-message');
 
-    if (!loginForm) return;
+	if (!loginForm) return;
 
-    loginForm.addEventListener('submit', async (event) => {
-        event.preventDefault();
+	loginForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
 
-        const email = document.getElementById('email').value.trim();
-        const password = document.getElementById('password').value.trim();
+		const email = document.getElementById('email').value.trim();
+		const password = document.getElementById('password').value.trim();
 
-        if (errorMessage) errorMessage.textContent = '';
+		if (errorMessage) errorMessage.textContent = '';
 
-        try {
-            const response = await fetch('http://127.0.0.1:5000/api/v1/users/login', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ email, password })
-            });
+		try {
+			const response = await fetch('http://127.0.0.1:5000/api/v1/users/login', {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({ email, password })
+			});
 
-            const data = await response.json();
+			const data = await response.json();
 
-            if (response.ok) {
-                document.cookie = `token=${data.access_token}; path=/`;
-                window.location.href = 'index.html';
-            } else {
-                if (errorMessage) {
-                    errorMessage.textContent = data.message || data.error || 'Login failed.';
-                }
-            }
-        } catch {
-            if (errorMessage) {
-                errorMessage.textContent = 'Server connection error.';
-            }
-        }
-    });
+			if (response.ok) {
+				document.cookie = `token=${data.access_token}; path=/`;
+				window.location.href = 'index.html';
+			} else {
+				if (errorMessage) {
+					errorMessage.textContent = data.message || data.error || 'Login failed.';
+				}
+			}
+		} catch {
+			if (errorMessage) {
+				errorMessage.textContent = 'Server connection error.';
+			}
+		}
+	});
 }
 
 /* =========================
    Cookies
 ========================= */
 function getCookie(name) {
-    const cookies = document.cookie.split(';');
+	const cookies = document.cookie.split(';');
 
-    for (let cookie of cookies) {
-        cookie = cookie.trim();
-        if (cookie.startsWith(name + '=')) {
-            return cookie.substring(name.length + 1);
-        }
-    }
+	for (let cookie of cookies) {
+		cookie = cookie.trim();
+		if (cookie.startsWith(name + '=')) {
+			return cookie.substring(name.length + 1);
+		}
+	}
 
-    return null;
+	return null;
 }
 
 function clearCookie(name) {
-    document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
+	document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
 }
 
 /* =========================
    Auth Nav Link
 ========================= */
 function updateAuthNavLink() {
-    const token = getCookie('token');
-    const loginLink = document.getElementById('login-link');
+	const token = getCookie('token');
+	const loginLink = document.getElementById('login-link');
 
-    if (!loginLink) return;
+	if (!loginLink) return;
 
-    if (token) {
-        loginLink.textContent = 'Sign Out';
-        loginLink.href = '#';
-        loginLink.onclick = function (e) {
-            e.preventDefault();
-            clearCookie('token');
-            window.location.href = 'login.html';
-        };
-    } else {
-        loginLink.textContent = 'Login';
-        loginLink.href = 'login.html';
-        loginLink.onclick = null;
-    }
+	if (token) {
+		loginLink.textContent = 'Sign Out';
+		loginLink.href = '#';
+		loginLink.onclick = function (e) {
+			e.preventDefault();
+			clearCookie('token');
+			window.location.href = 'login.html';
+		};
+	} else {
+		loginLink.textContent = 'Login';
+		loginLink.href = 'login.html';
+		loginLink.onclick = null;
+	}
 }
 
 /* =========================
    INDEX PAGE
 ========================= */
 function checkAuthenticationAndLoadPlaces() {
-    const placesList = document.getElementById('places-list');
-    if (!placesList) return;
+	const placesList = document.getElementById('places-list');
+	if (!placesList) return;
 
-    const token = getCookie('token');
+	const token = getCookie('token');
 
-    updateAuthNavLink();
-    fetchPlaces(token);
-    setupPriceFilter();
+	updateAuthNavLink();
+	fetchPlaces(token);
+	setupPriceFilter();
 }
 
 async function fetchPlaces(token) {
-    try {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+	try {
+		const headers = {};
+		if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
-            method: 'GET',
-            headers
-        });
+		const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
+			method: 'GET',
+			headers
+		});
 
-        if (!response.ok) throw new Error();
+		if (!response.ok) throw new Error();
 
-        const data = await response.json();
-        allPlaces = data;
-        displayPlaces(allPlaces);
-    } catch {
-        const placesList = document.getElementById('places-list');
-        if (placesList) {
-            placesList.innerHTML = '<p>Failed to load places.</p>';
-        }
-    }
+		const data = await response.json();
+		allPlaces = data;
+		displayPlaces(allPlaces);
+	} catch {
+		const placesList = document.getElementById('places-list');
+		if (placesList) {
+			placesList.innerHTML = '<p>Failed to load places.</p>';
+		}
+	}
 }
 
 function displayPlaces(places) {
-    const container = document.getElementById('places-list');
-    if (!container) return;
+	const container = document.getElementById('places-list');
+	if (!container) return;
 
-    container.innerHTML = '';
+	container.innerHTML = '';
 
-    places.forEach(place => {
-        const card = document.createElement('div');
-        card.className = 'place-card';
+	places.forEach(place => {
+		const card = document.createElement('div');
+		card.className = 'place-card';
 
-        card.innerHTML = `
+		card.innerHTML = `
             ${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-image">` : ''}
 
             <div class="place-card-content">
@@ -158,6 +164,7 @@ function displayPlaces(places) {
                 </p>
 
                 <div class="place-features">
+
                     <div class="feature-item">
                         <img src="icons/wi-fi-icon.png" alt="WiFi">
                         <span>WIFI</span>
@@ -176,164 +183,171 @@ function displayPlaces(places) {
                     </div>
                 </div>
 
-                <div class="place-card-footer">
-                    <p class="place-price">$${place.price}</p>
-                    <a href="place.html?id=${place.id}" class="details-button">
-                        View Details
-                    </a>
-                </div>
+				<div class="place-card-footer">
+					<div class="place-price-block">
+						<p class="place-price">$${place.price}</p>
+                    <div class="guests-trigger">
+						<img src="icons/Guests-icon.png" alt="Guests">
+						<p class="place-guests-max">Up to ${place.max_guests} guests</p>
+					</div>
+					</div>
+
+					<a href="place.html?id=${place.id}" class="details-button">
+						View Details
+					</a>
+				</div>
             </div>
         `;
 
-        container.appendChild(card);
-    });
+		container.appendChild(card);
+	});
 }
 
 function setupPriceFilter() {
-    const wrapper = document.getElementById('price-dropdown-wrapper');
-    const trigger = document.getElementById('price-trigger');
-    const dropdown = document.getElementById('price-dropdown');
-    const minRange = document.getElementById('min-price-range');
-    const maxRange = document.getElementById('max-price-range');
-    const minValue = document.getElementById('min-price-value');
-    const maxValue = document.getElementById('max-price-value');
-    const display = document.getElementById('price-display');
-    const applyBtn = document.getElementById('apply-price');
+	const wrapper = document.getElementById('price-dropdown-wrapper');
+	const trigger = document.getElementById('price-trigger');
+	const dropdown = document.getElementById('price-dropdown');
+	const minRange = document.getElementById('min-price-range');
+	const maxRange = document.getElementById('max-price-range');
+	const minValue = document.getElementById('min-price-value');
+	const maxValue = document.getElementById('max-price-value');
+	const display = document.getElementById('price-display');
+	const applyBtn = document.getElementById('apply-price');
 
-    if (
-        !wrapper || !trigger || !dropdown || !minRange || !maxRange ||
-        !minValue || !maxValue || !display || !applyBtn
-    ) return;
+	if (
+		!wrapper || !trigger || !dropdown || !minRange || !maxRange ||
+		!minValue || !maxValue || !display || !applyBtn
+	) return;
 
-    function syncRanges(changed) {
-        let min = Number(minRange.value);
-        let max = Number(maxRange.value);
+	function syncRanges(changed) {
+		let min = Number(minRange.value);
+		let max = Number(maxRange.value);
 
-        if (min > max) {
-            if (changed === 'min') {
-                max = min;
-                maxRange.value = max;
-            } else {
-                min = max;
-                minRange.value = min;
-            }
-        }
+		if (min > max) {
+			if (changed === 'min') {
+				max = min;
+				maxRange.value = max;
+			} else {
+				min = max;
+				minRange.value = min;
+			}
+		}
 
-        minValue.textContent = min;
-        maxValue.textContent = max;
-    }
+		minValue.textContent = min;
+		maxValue.textContent = max;
+	}
 
-    minRange.addEventListener('input', () => syncRanges('min'));
-    maxRange.addEventListener('input', () => syncRanges('max'));
+	minRange.addEventListener('input', () => syncRanges('min'));
+	maxRange.addEventListener('input', () => syncRanges('max'));
 
-    trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle('open');
+	trigger.addEventListener('click', (e) => {
+		e.stopPropagation();
+		dropdown.classList.toggle('open');
 
-        const dateDropdown = document.getElementById('date-dropdown');
-        const guestsDropdown = document.getElementById('guests-dropdown');
+		const dateDropdown = document.getElementById('date-dropdown');
+		const guestsDropdown = document.getElementById('guests-dropdown');
 
-        if (dateDropdown) dateDropdown.classList.remove('open');
-        if (guestsDropdown) guestsDropdown.classList.remove('open');
-    });
+		if (dateDropdown) dateDropdown.classList.remove('open');
+		if (guestsDropdown) guestsDropdown.classList.remove('open');
+	});
 
-    applyBtn.addEventListener('click', () => {
-        const min = Number(minRange.value);
-        const max = Number(maxRange.value);
+	applyBtn.addEventListener('click', () => {
+		const min = Number(minRange.value);
+		const max = Number(maxRange.value);
 
-        display.textContent = `$${min} - $${max}`;
+		display.textContent = `$${min} - $${max}`;
 
-        const filtered = allPlaces.filter(place => {
-            const price = Number(place.price);
-            return price >= min && price <= max;
-        });
+		const filtered = allPlaces.filter(place => {
+			const price = Number(place.price);
+			return price >= min && price <= max;
+		});
 
-        displayPlaces(filtered);
-        dropdown.classList.remove('open');
-    });
+		displayPlaces(filtered);
+		dropdown.classList.remove('open');
+	});
 
-    document.addEventListener('click', (e) => {
-        if (!wrapper.contains(e.target)) {
-            dropdown.classList.remove('open');
-        }
-    });
+	document.addEventListener('click', (e) => {
+		if (!wrapper.contains(e.target)) {
+			dropdown.classList.remove('open');
+		}
+	});
 
-    syncRanges();
-}	
+	syncRanges();
+}
 
 /* =========================
    PLACE DETAILS PAGE
 ========================= */
 function checkAuthenticationAndLoadPlaceDetails() {
-    const section = document.getElementById('place-details');
-    if (!section) return;
+	const section = document.getElementById('place-details');
+	if (!section) return;
 
-    const token = getCookie('token');
-    const addReviewSection = document.getElementById('add-review');
-    const placeId = getPlaceIdFromURL();
+	const token = getCookie('token');
+	const addReviewSection = document.getElementById('add-review');
+	const placeId = getPlaceIdFromURL();
 
-    updateAuthNavLink();
+	updateAuthNavLink();
 
-    if (addReviewSection) {
-        addReviewSection.style.display = token ? 'block' : 'none';
-    }
+	if (addReviewSection) {
+		addReviewSection.style.display = token ? 'block' : 'none';
+	}
 
-    if (!placeId) {
-        section.innerHTML = '<p>Invalid place ID</p>';
-        return;
-    }
+	if (!placeId) {
+		section.innerHTML = '<p>Invalid place ID</p>';
+		return;
+	}
 
-    fetchPlaceDetails(token, placeId);
+	fetchPlaceDetails(token, placeId);
 }
 
 function getPlaceIdFromURL() {
-    const params = new URLSearchParams(window.location.search);
-    return params.get('id');
+	const params = new URLSearchParams(window.location.search);
+	return params.get('id');
 }
 
 async function fetchPlaceDetails(token, placeId) {
-    try {
-        const headers = {};
-        if (token) headers['Authorization'] = `Bearer ${token}`;
+	try {
+		const headers = {};
+		if (token) headers['Authorization'] = `Bearer ${token}`;
 
-        const response = await fetch(
-            `http://127.0.0.1:5000/api/v1/places/${placeId}`,
-            { headers }
-        );
+		const response = await fetch(
+			`http://127.0.0.1:5000/api/v1/places/${placeId}`,
+			{ headers }
+		);
 
-        if (!response.ok) throw new Error();
+		if (!response.ok) throw new Error();
 
-        const place = await response.json();
-        displayPlaceDetails(place);
-    } catch {
-        const placeDetails = document.getElementById('place-details');
-        if (placeDetails) {
-            placeDetails.innerHTML = '<p>Error loading place.</p>';
-        }
-    }
+		const place = await response.json();
+		displayPlaceDetails(place);
+	} catch {
+		const placeDetails = document.getElementById('place-details');
+		if (placeDetails) {
+			placeDetails.innerHTML = '<p>Error loading place.</p>';
+		}
+	}
 }
 
 function displayPlaceDetails(place) {
-    const section = document.getElementById('place-details');
-    const addReview = document.getElementById('add-review');
+	const section = document.getElementById('place-details');
+	const addReview = document.getElementById('add-review');
 
-    if (!section) return;
+	if (!section) return;
 
-    const amenities = place.amenities?.length
-        ? `<ul>${place.amenities.map(a => `<li>${a.name}</li>`).join('')}</ul>`
-        : '<p>No amenities</p>';
+	const amenities = place.amenities?.length
+		? `<ul>${place.amenities.map(a => `<li>${a.name}</li>`).join('')}</ul>`
+		: '<p>No amenities</p>';
 
-    const reviews = place.reviews?.length
-        ? place.reviews.map(r => `
+	const reviews = place.reviews?.length
+		? place.reviews.map(r => `
             <div class="review-card">
                 <p><strong>User:</strong> ${r.user_id}</p>
                 <p><strong>Rating:</strong> ${r.rating}</p>
                 <p>${r.text}</p>
             </div>
         `).join('')
-        : '<p>No reviews yet</p>';
+		: '<p>No reviews yet</p>';
 
-    section.innerHTML = `
+	section.innerHTML = `
         ${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-details-image">` : ''}
         <h1>${place.title}</h1>
 
@@ -350,278 +364,278 @@ function displayPlaceDetails(place) {
         ${reviews}
     `;
 
-    if (addReview) {
-        addReview.innerHTML = `
+	if (addReview) {
+		addReview.innerHTML = `
             <a href="add_review.html?id=${place.id}" class="details-button">
                 Add Review
             </a>
         `;
-    }
+	}
 }
 
 /* =========================
    ADD REVIEW PAGE
 ========================= */
 function setupReviewForm() {
-    const form = document.getElementById('review-form');
-    if (!form) return;
+	const form = document.getElementById('review-form');
+	if (!form) return;
 
-    const token = getCookie('token');
-    const placeId = getPlaceIdFromURL();
-    const msg = document.getElementById('review-message');
+	const token = getCookie('token');
+	const placeId = getPlaceIdFromURL();
+	const msg = document.getElementById('review-message');
 
-    if (!token) {
-        window.location.href = 'index.html';
-        return;
-    }
+	if (!token) {
+		window.location.href = 'index.html';
+		return;
+	}
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+	form.addEventListener('submit', async (e) => {
+		e.preventDefault();
 
-        const text = document.getElementById('review-text').value.trim();
-        const rating = Number(document.getElementById('rating').value);
+		const text = document.getElementById('review-text').value.trim();
+		const rating = Number(document.getElementById('rating').value);
 
-        if (msg) msg.textContent = '';
+		if (msg) msg.textContent = '';
 
-        try {
-            const res = await fetch('http://127.0.0.1:5000/api/v1/reviews/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    text,
-                    rating,
-                    place_id: placeId
-                })
-            });
+		try {
+			const res = await fetch('http://127.0.0.1:5000/api/v1/reviews/', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					'Authorization': `Bearer ${token}`
+				},
+				body: JSON.stringify({
+					text,
+					rating,
+					place_id: placeId
+				})
+			});
 
-            if (res.ok) {
-                if (msg) msg.textContent = 'Review submitted successfully!';
-                form.reset();
-            } else {
-                if (msg) msg.textContent = 'Failed to submit review.';
-            }
-        } catch {
-            if (msg) msg.textContent = 'Server error.';
-        }
-    });
+			if (res.ok) {
+				if (msg) msg.textContent = 'Review submitted successfully!';
+				form.reset();
+			} else {
+				if (msg) msg.textContent = 'Failed to submit review.';
+			}
+		} catch {
+			if (msg) msg.textContent = 'Server error.';
+		}
+	});
 }
 
 /* =========================
    LOGIN PAGE UI EFFECTS
 ========================= */
 function setupLoginBackgroundSlider() {
-    if (!document.body.classList.contains('login-page')) return;
+	if (!document.body.classList.contains('login-page')) return;
 
-    const slides = document.querySelectorAll('.login-bg-slide');
-    if (!slides.length) return;
+	const slides = document.querySelectorAll('.login-bg-slide');
+	if (!slides.length) return;
 
-    const bgImages = [
-        'BG-IMGS/Los-angles.png',
-        'BG-IMGS/Riyadh.jpg',
+	const bgImages = [
+		'BG-IMGS/Los-angles.png',
+		'BG-IMGS/Riyadh.jpg',
 		'BG-IMGS/Dubai.jpg'
-    ];
+	];
 
-    slides.forEach((slide, index) => {
-        slide.style.backgroundImage = `url('${bgImages[index % bgImages.length]}')`;
-    });
+	slides.forEach((slide, index) => {
+		slide.style.backgroundImage = `url('${bgImages[index % bgImages.length]}')`;
+	});
 
-    let currentIndex = 0;
+	let currentIndex = 0;
 
-    setInterval(() => {
-        const currentSlide = slides[currentIndex % slides.length];
-        const nextIndex = (currentIndex + 1) % slides.length;
-        const nextSlide = slides[nextIndex];
+	setInterval(() => {
+		const currentSlide = slides[currentIndex % slides.length];
+		const nextIndex = (currentIndex + 1) % slides.length;
+		const nextSlide = slides[nextIndex];
 
-        const nextBgIndex = (currentIndex + slides.length) % bgImages.length;
-        nextSlide.style.backgroundImage = `url('${bgImages[nextBgIndex]}')`;
+		const nextBgIndex = (currentIndex + slides.length) % bgImages.length;
+		nextSlide.style.backgroundImage = `url('${bgImages[nextBgIndex]}')`;
 
-        currentSlide.classList.remove('active');
-        nextSlide.classList.add('active');
+		currentSlide.classList.remove('active');
+		nextSlide.classList.add('active');
 
-        currentIndex = nextIndex;
-    }, 3000);
+		currentIndex = nextIndex;
+	}, 3000);
 }
 
 function setupThemeToggle() {
-    const lightBtn = document.getElementById('light-mode-btn');
-    const darkBtn = document.getElementById('dark-mode-btn');
-    const page = document.body;
+	const lightBtn = document.getElementById('light-mode-btn');
+	const darkBtn = document.getElementById('dark-mode-btn');
+	const page = document.body;
 
-    if (!lightBtn || !darkBtn) return;
+	if (!lightBtn || !darkBtn) return;
 
-    lightBtn.addEventListener('click', () => {
-        page.classList.remove('dark-mode');
-        page.classList.add('light-mode');
-        lightBtn.classList.add('active');
-        darkBtn.classList.remove('active');
-    });
+	lightBtn.addEventListener('click', () => {
+		page.classList.remove('dark-mode');
+		page.classList.add('light-mode');
+		lightBtn.classList.add('active');
+		darkBtn.classList.remove('active');
+	});
 
-    darkBtn.addEventListener('click', () => {
-        page.classList.remove('light-mode');
-        page.classList.add('dark-mode');
-        darkBtn.classList.add('active');
-        lightBtn.classList.remove('active');
-    });
+	darkBtn.addEventListener('click', () => {
+		page.classList.remove('light-mode');
+		page.classList.add('dark-mode');
+		darkBtn.classList.add('active');
+		lightBtn.classList.remove('active');
+	});
 }
 
 function setupPasswordToggle() {
-    const passwordInput = document.getElementById('password');
-    const toggleBtn = document.getElementById('password-toggle');
+	const passwordInput = document.getElementById('password');
+	const toggleBtn = document.getElementById('password-toggle');
 
-    if (!passwordInput || !toggleBtn) return;
+	if (!passwordInput || !toggleBtn) return;
 
-    toggleBtn.addEventListener('click', () => {
-        const isPasswordHidden = passwordInput.type === 'password';
+	toggleBtn.addEventListener('click', () => {
+		const isPasswordHidden = passwordInput.type === 'password';
 
-        passwordInput.type = isPasswordHidden ? 'text' : 'password';
-        toggleBtn.classList.toggle('active', isPasswordHidden);
-        toggleBtn.setAttribute(
-            'aria-label',
-            isPasswordHidden ? 'Hide password' : 'Show password'
-        );
-    });
+		passwordInput.type = isPasswordHidden ? 'text' : 'password';
+		toggleBtn.classList.toggle('active', isPasswordHidden);
+		toggleBtn.setAttribute(
+			'aria-label',
+			isPasswordHidden ? 'Hide password' : 'Show password'
+		);
+	});
 }
 
 /* =========================
    INDEX PAGE UI EFFECTS
 ========================= */
 function setupIndexHeroSlider() {
-    if (!document.body.classList.contains('index-page')) return;
+	if (!document.body.classList.contains('index-page')) return;
 
-    const slides = document.querySelectorAll('.bg-slide');
-    const title = document.querySelector('.hero-title');
+	const slides = document.querySelectorAll('.bg-slide');
+	const title = document.querySelector('.hero-title');
 
-    if (!slides.length || !title) return;
+	if (!slides.length || !title) return;
 
-    const heroData = [
-        {
-            image: 'BG-IMGS/Los-angles.png',
-            title: 'LOS ANGLES'
-        },
-        {
-            image: 'BG-IMGS/Riyadh.jpg',
-            title: 'RIYADH'
-        },
-        {
-            image: 'BG-IMGS/Dubai.jpg',
-            title: 'DUBAI'
-        },
-    ];
+	const heroData = [
+		{
+			image: 'BG-IMGS/Los-angles.png',
+			title: 'LOS ANGLES'
+		},
+		{
+			image: 'BG-IMGS/Riyadh.jpg',
+			title: 'RIYADH'
+		},
+		{
+			image: 'BG-IMGS/Dubai.jpg',
+			title: 'DUBAI'
+		},
+	];
 
-    slides.forEach((slide, index) => {
-        const item = heroData[index % heroData.length];
-        slide.style.backgroundImage = `url('${item.image}')`;
-    });
+	slides.forEach((slide, index) => {
+		const item = heroData[index % heroData.length];
+		slide.style.backgroundImage = `url('${item.image}')`;
+	});
 
-    title.textContent = heroData[0].title;
+	title.textContent = heroData[0].title;
 
-    let currentIndex = 0;
+	let currentIndex = 0;
 
-    setInterval(() => {
-        const currentSlide = slides[currentIndex % slides.length];
-        const nextIndex = (currentIndex + 1) % slides.length;
-        const nextSlide = slides[nextIndex];
-        const nextData = heroData[nextIndex % heroData.length];
+	setInterval(() => {
+		const currentSlide = slides[currentIndex % slides.length];
+		const nextIndex = (currentIndex + 1) % slides.length;
+		const nextSlide = slides[nextIndex];
+		const nextData = heroData[nextIndex % heroData.length];
 
-        nextSlide.style.backgroundImage = `url('${nextData.image}')`;
+		nextSlide.style.backgroundImage = `url('${nextData.image}')`;
 
-        currentSlide.classList.remove('active');
-        nextSlide.classList.add('active');
+		currentSlide.classList.remove('active');
+		nextSlide.classList.add('active');
 
-        title.textContent = nextData.title;
+		title.textContent = nextData.title;
 
-        currentIndex = nextIndex;
-    }, 5000);
+		currentIndex = nextIndex;
+	}, 5000);
 }
 
 function setupDatePicker() {
-    const wrapper = document.getElementById('date-dropdown-wrapper');
-    const trigger = document.getElementById('date-trigger');
-    const dropdown = document.getElementById('date-dropdown');
-    const input = document.getElementById('date-range-picker');
-    const applyBtn = document.getElementById('apply-dates');
-    const display = document.getElementById('date-display');
+	const wrapper = document.getElementById('date-dropdown-wrapper');
+	const trigger = document.getElementById('date-trigger');
+	const dropdown = document.getElementById('date-dropdown');
+	const input = document.getElementById('date-range-picker');
+	const applyBtn = document.getElementById('apply-dates');
+	const display = document.getElementById('date-display');
 
-    if (!wrapper || !trigger || !dropdown || !input || !applyBtn || !display) return;
-    if (typeof flatpickr === 'undefined') return;
+	if (!wrapper || !trigger || !dropdown || !input || !applyBtn || !display) return;
+	if (typeof flatpickr === 'undefined') return;
 
-    let selectedDates = [];
+	let selectedDates = [];
 
-    const picker = flatpickr(input, {
-        mode: 'range',
-        minDate: 'today',
-        dateFormat: 'Y-m-d',
-        disableMobile: true,
-        inline: true,
-        locale: flatpickr.l10ns.default,
-        onReady: function (_, __, instance) {
-            instance.calendarContainer.setAttribute('lang', 'en');
+	const picker = flatpickr(input, {
+		mode: 'range',
+		minDate: 'today',
+		dateFormat: 'Y-m-d',
+		disableMobile: true,
+		inline: true,
+		locale: flatpickr.l10ns.default,
+		onReady: function (_, __, instance) {
+			instance.calendarContainer.setAttribute('lang', 'en');
 
-            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-            if (yearInput) {
-                yearInput.setAttribute('lang', 'en');
-                yearInput.style.direction = 'ltr';
-            }
-        },
-        onOpen: function (_, __, instance) {
-            instance.calendarContainer.setAttribute('lang', 'en');
+			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+			if (yearInput) {
+				yearInput.setAttribute('lang', 'en');
+				yearInput.style.direction = 'ltr';
+			}
+		},
+		onOpen: function (_, __, instance) {
+			instance.calendarContainer.setAttribute('lang', 'en');
 
-            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-            if (yearInput) {
-                yearInput.setAttribute('lang', 'en');
-                yearInput.style.direction = 'ltr';
-            }
-        },
-        onMonthChange: function (_, __, instance) {
-            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-            if (yearInput) {
-                yearInput.setAttribute('lang', 'en');
-                yearInput.style.direction = 'ltr';
-            }
-        },
-        onYearChange: function (_, __, instance) {
-            const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-            if (yearInput) {
-                yearInput.setAttribute('lang', 'en');
-                yearInput.style.direction = 'ltr';
-            }
-        },
-        onChange: function (dates) {
-            selectedDates = dates;
-        }
-    });
+			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+			if (yearInput) {
+				yearInput.setAttribute('lang', 'en');
+				yearInput.style.direction = 'ltr';
+			}
+		},
+		onMonthChange: function (_, __, instance) {
+			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+			if (yearInput) {
+				yearInput.setAttribute('lang', 'en');
+				yearInput.style.direction = 'ltr';
+			}
+		},
+		onYearChange: function (_, __, instance) {
+			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
+			if (yearInput) {
+				yearInput.setAttribute('lang', 'en');
+				yearInput.style.direction = 'ltr';
+			}
+		},
+		onChange: function (dates) {
+			selectedDates = dates;
+		}
+	});
 
-    trigger.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdown.classList.toggle('open');
+	trigger.addEventListener('click', (e) => {
+		e.stopPropagation();
+		dropdown.classList.toggle('open');
 
-        const guestsDropdown = document.getElementById('guests-dropdown');
-        if (guestsDropdown) guestsDropdown.classList.remove('open');
-    });
+		const guestsDropdown = document.getElementById('guests-dropdown');
+		if (guestsDropdown) guestsDropdown.classList.remove('open');
+	});
 
-    applyBtn.addEventListener('click', () => {
-        if (selectedDates.length === 2) {
-            const from = picker.formatDate(selectedDates[0], 'Y-m-d');
-            const to = picker.formatDate(selectedDates[1], 'Y-m-d');
-            display.textContent = `${from} → ${to}`;
-        } else if (selectedDates.length === 1) {
-            const from = picker.formatDate(selectedDates[0], 'Y-m-d');
-            display.textContent = `From ${from}`;
-        } else {
-            display.textContent = 'Add dates';
-        }
+	applyBtn.addEventListener('click', () => {
+		if (selectedDates.length === 2) {
+			const from = picker.formatDate(selectedDates[0], 'Y-m-d');
+			const to = picker.formatDate(selectedDates[1], 'Y-m-d');
+			display.textContent = `${from} → ${to}`;
+		} else if (selectedDates.length === 1) {
+			const from = picker.formatDate(selectedDates[0], 'Y-m-d');
+			display.textContent = `From ${from}`;
+		} else {
+			display.textContent = 'Add dates';
+		}
 
-        dropdown.classList.remove('open');
-    });
+		dropdown.classList.remove('open');
+	});
 
-    document.addEventListener('click', (e) => {
-        if (!wrapper.contains(e.target)) {
-            dropdown.classList.remove('open');
-        }
-    });
+	document.addEventListener('click', (e) => {
+		if (!wrapper.contains(e.target)) {
+			dropdown.classList.remove('open');
+		}
+	});
 }
 
 function setupGuestsPicker() {
@@ -641,19 +655,19 @@ function setupGuestsPicker() {
     const childrenCount = document.getElementById('children-count');
 
     function updateCounts() {
-        adultsCount.textContent = adults;
-        childrenCount.textContent = children;
+        if (adultsCount) adultsCount.textContent = adults;
+        if (childrenCount) childrenCount.textContent = children;
     }
 
     function updateDisplay() {
         const total = adults + children;
+        selectedGuests = total;
 
         if (total === 0) {
             display.textContent = 'Add Guests';
-            return;
+        } else {
+            display.textContent = `${adults} Adults, ${children} Children`;
         }
-
-        display.textContent = `${adults} Adults, ${children} Children`;
     }
 
     trigger.addEventListener('click', (e) => {
@@ -661,11 +675,16 @@ function setupGuestsPicker() {
         dropdown.classList.toggle('open');
 
         const dateDropdown = document.getElementById('date-dropdown');
+        const priceDropdown = document.getElementById('price-dropdown');
+
         if (dateDropdown) dateDropdown.classList.remove('open');
+        if (priceDropdown) priceDropdown.classList.remove('open');
     });
 
     buttons.forEach((button) => {
-        button.addEventListener('click', () => {
+        button.addEventListener('click', (e) => {
+            e.stopPropagation();
+
             const target = button.dataset.target;
             const action = button.dataset.action;
 
@@ -683,7 +702,8 @@ function setupGuestsPicker() {
         });
     });
 
-    applyBtn.addEventListener('click', () => {
+    applyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
         updateDisplay();
         dropdown.classList.remove('open');
     });
@@ -696,4 +716,34 @@ function setupGuestsPicker() {
 
     updateCounts();
     updateDisplay();
+}
+
+function setupSearchButton() {
+    const searchBtn = document.getElementById('search-submit-btn');
+    const locationInput = document.getElementById('location-input');
+
+    if (!searchBtn) return;
+
+    searchBtn.addEventListener('click', () => {
+        let filtered = [...allPlaces];
+
+        const locationValue = locationInput
+            ? locationInput.value.trim().toLowerCase()
+            : '';
+
+        if (locationValue) {
+            filtered = filtered.filter(place =>
+                (place.title && place.title.toLowerCase().includes(locationValue)) ||
+                (place.description && place.description.toLowerCase().includes(locationValue))
+            );
+        }
+
+        if (selectedGuests > 0) {
+            filtered = filtered.filter(place =>
+                Number(place.max_guests) >= selectedGuests
+            );
+        }
+
+        displayPlaces(filtered);
+    });
 }

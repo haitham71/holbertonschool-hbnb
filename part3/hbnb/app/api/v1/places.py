@@ -15,6 +15,7 @@ place_model = api.model('Place', {
     'latitude': fields.Float(required=True),
     'longitude': fields.Float(required=True),
     'owner_id': fields.String(required=True),
+    'max_guests': fields.Integer(required=True),
     'amenities': fields.List(fields.String),
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime
@@ -26,6 +27,7 @@ place_create_model = api.model('PlaceCreate', {
     'price': fields.Float(required=True),
     'latitude': fields.Float(required=True),
     'longitude': fields.Float(required=True),
+    'max_guests': fields.Integer(required=True),
     'amenities': fields.List(fields.String)
 })
 
