@@ -4,33 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Place Details - HBnB</title>
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
 
-    <header>
-        <img src="logo.png" alt="HBnB Logo" class="logo">
-        <a href="login.html" class="login-button" id="login-link">Login</a>
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/place.css">
+</head>
+<body class="page-shell place-page light-mode">
+    <div class="hero-bg">
+        <div class="bg-slide active" style="background-image: url('BG-IMGS/Dubai.jpg');"></div>
+    </div>
+    <div class="page-overlay"></div>
+
+    <header class="site-header">
+        <img src="logo.png" alt="HBnB Logo" class="site-logo">
+
+        <div class="theme-toggle">
+            <button type="button" class="theme-btn active" id="light-mode-btn" aria-label="Light mode">
+                <img src="icons/sun.png" alt="Light mode">
+            </button>
+            <button type="button" class="theme-btn" id="dark-mode-btn" aria-label="Dark mode">
+                <img src="icons/moon.png" alt="Dark mode">
+            </button>
+        </div>
     </header>
 
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="login.html">Login</a>
+    <nav class="top-nav">
+        <a href="index.html" class="nav-link">Home</a>
+        <a href="login.html" class="nav-link" id="login-link">Login</a>
     </nav>
 
-    <main>
-        <section id="place-details" class="place-details">
-            <!-- Place details will be inserted here dynamically -->
+    <main class="place-main">
+        <section id="place-details" class="place-layout">
+            <!-- Filled dynamically -->
         </section>
 
-        <section id="add-review" class="add-review">
-            <a href="add_review.html" class="details-button">Add Review</a>
-        </section>
+        <section id="add-review" class="add-review"></section>
     </main>
 
-    <footer>
+    <footer class="site-footer">
         <p>All rights reserved.</p>
     </footer>
+
+    <!-- Lightbox -->
+    <div id="gallery-lightbox" class="gallery-lightbox" aria-hidden="true">
+        <button type="button" class="lightbox-close" id="lightbox-close" aria-label="Close">×</button>
+        <button type="button" class="lightbox-nav lightbox-prev" id="lightbox-prev" aria-label="Previous">‹</button>
+
+        <div class="lightbox-content">
+            <img id="lightbox-image" src="" alt="Gallery image">
+        </div>
+
+        <button type="button" class="lightbox-nav lightbox-next" id="lightbox-next" aria-label="Next">›</button>
+    </div>
 
     <script src="scripts.js"></script>
 </body>

@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     setupLoginBackgroundSlider();
     setupThemeToggle();
     setupPasswordToggle();
+	setupGalleryLightbox();
 });
 
 let allPlaces = [];
@@ -328,51 +329,167 @@ async function fetchPlaceDetails(token, placeId) {
 }
 
 function displayPlaceDetails(place) {
-	const section = document.getElementById('place-details');
-	const addReview = document.getElementById('add-review');
+    const section = document.getElementById('place-details');
+    const addReview = document.getElementById('add-review');
 
-	if (!section) return;
+    if (!section) return;
 
-	const amenities = place.amenities?.length
-		? `<ul>${place.amenities.map(a => `<li>${a.name}</li>`).join('')}</ul>`
-		: '<p>No amenities</p>';
+    const galleryImages = [
+        ...(place.image_url ? [place.image_url] : []),
+        ...((place.images || []).map(img => img.image_url).filter(Boolean))
+    ];
 
-	const reviews = place.reviews?.length
-		? place.reviews.map(r => `
-            <div class="review-card">
-                <p><strong>User:</strong> ${r.user_id}</p>
-                <p><strong>Rating:</strong> ${r.rating}</p>
-                <p>${r.text}</p>
+    const visibleImages = galleryImages.slice(0, 5);
+
+    const mainImage = visibleImages[0] || '';
+    const sideImages = visibleImages.slice(1, 5);
+
+    const reviewCount = place.reviews?.length || 0;
+    const avgRating = reviewCount
+        ? (place.reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviewCount).toFixed(2)
+        : '0.00';
+
+    const stars = reviewCount
+        ? '★★★★★'
+        : '☆☆☆☆☆';
+
+    const amenityIcons = {
+        wifi: 'icons/wi-fi-icon.png',
+        gym: 'icons/weight.png',
+        balcony: 'icons/balcony.png',
+        valet: 'icons/keys.png',
+        parking: 'icons/keys.png'
+    };
+
+    const amenitiesHtml = place.amenities?.length
+        ? place.amenities.map(amenity => {
+            const amenityName = amenity.name || 'Amenity';
+            const icon = amenityIcons[amenityName.toLowerCase()] || 'icons/rating.png';
+
+            return `
+                <div class="place-amenity">
+                    <img src="${icon}" alt="${amenityName}">
+                    <span>${amenityName}</span>
+                </div>
+            `;
+        }).join('')
+        : '<p>No amenities available.</p>';
+
+    const sideImagesHtml = sideImages.map((img, index) => {
+        const actualIndex = index + 1;
+        const isLastVisible = actualIndex === 4;
+        const remaining = galleryImages.length - 5;
+
+        return `
+            <div class="gallery-thumb-box">
+                <img
+                    src="${img}"
+                    alt="${place.title} image ${actualIndex + 1}"
+                    class="gallery-thumb"
+                    data-gallery-index="${actualIndex}"
+                >
+                ${isLastVisible && remaining > 0 ? `
+                    <div class="gallery-more-overlay" data-gallery-index="${actualIndex}">
+                        +${remaining}
+                    </div>
+                ` : ''}
             </div>
-        `).join('')
-		: '<p>No reviews yet</p>';
+        `;
+    }).join('');
 
-	section.innerHTML = `
-        ${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-details-image">` : ''}
-        <h1>${place.title}</h1>
+    section.innerHTML = `
+        <div class="place-top-bar">
+            <div class="place-top-title">
+                <h1>${place.title}</h1>
+                <p class="place-subtitle">${place.description || 'No description available'}</p>
+            </div>
 
-        <div class="place-info">
-            <p>${place.description}</p>
-            <p><strong>Price:</strong> $${place.price}</p>
-            <p>${place.latitude}, ${place.longitude}</p>
+            <div class="place-top-location">
+                <strong>City</strong>
+                <span>Dubai</span>
+            </div>
+
+            <div class="place-top-price">
+                <span class="amount">$${place.price}</span>
+                <span class="per-night">For per night</span>
+            </div>
         </div>
 
-        <h2>Amenities</h2>
-        ${amenities}
+        <div class="place-content-grid">
+            <div class="place-left-column">
+                <div class="place-gallery">
+                    <div class="gallery-main">
+                        ${mainImage ? `
+                            <img
+                                src="${mainImage}"
+                                alt="${place.title}"
+                                class="gallery-main-image"
+                                data-gallery-index="0"
+                            >
+                        ` : ''}
+                    </div>
 
-        <h2>Reviews</h2>
-        ${reviews}
+                    <div class="gallery-side-grid">
+                        ${sideImagesHtml}
+                    </div>
+                </div>
+
+                <div class="place-description-block">
+                    <h2>Description</h2>
+                    <p>${place.description || 'No description available.'}</p>
+                </div>
+            </div>
+
+            <aside class="place-sidebar">
+                <div class="sidebar-card rating-card">
+                    <div class="rating-split">
+                        <span class="review-count-number">${reviewCount}</span>
+                        <span class="review-count-label">Reviews</span>
+                    </div>
+
+                    <div>
+                        <span class="rating-value">${avgRating}</span>
+                        <div class="rating-stars">${stars}</div>
+                    </div>
+                </div>
+
+                <div class="sidebar-card booking-card">
+                    <div class="booking-dates">
+                        <div class="booking-dates-row">
+                            <strong>From</strong>
+                            <span>${selectedDateRange.from || 'Not selected'}</span>
+                        </div>
+                        <div class="booking-dates-row">
+                            <strong>To</strong>
+                            <span>${selectedDateRange.to || 'Not selected'}</span>
+                        </div>
+                    </div>
+
+                    <div class="booking-total">
+                        <strong>Total</strong>
+                        <span>$${place.price}</span>
+                    </div>
+
+                    <button type="button" class="book-now-btn">Book Now</button>
+                </div>
+
+                <div class="sidebar-card amenities-card">
+                    ${amenitiesHtml}
+                </div>
+            </aside>
+        </div>
     `;
 
-	if (addReview) {
-		addReview.innerHTML = `
+    if (addReview) {
+        addReview.innerHTML = `
             <a href="add_review.html?id=${place.id}" class="details-button">
                 Add Review
             </a>
         `;
-	}
-}
+    }
 
+    setupGalleryLightbox(galleryImages);
+}
 /* =========================
    ADD REVIEW PAGE
 ========================= */
@@ -745,5 +862,64 @@ function setupSearchButton() {
         }
 
         displayPlaces(filtered);
+    });
+}
+
+function setupGalleryLightbox(images) {
+    const lightbox = document.getElementById('gallery-lightbox');
+    const lightboxImage = document.getElementById('lightbox-image');
+    const closeBtn = document.getElementById('lightbox-close');
+    const prevBtn = document.getElementById('lightbox-prev');
+    const nextBtn = document.getElementById('lightbox-next');
+
+    if (!lightbox || !lightboxImage || !closeBtn || !prevBtn || !nextBtn || !images.length) return;
+
+    let currentIndex = 0;
+
+    function openLightbox(index) {
+        currentIndex = index;
+        lightboxImage.src = images[currentIndex];
+        lightbox.classList.add('open');
+        lightbox.setAttribute('aria-hidden', 'false');
+    }
+
+    function closeLightbox() {
+        lightbox.classList.remove('open');
+        lightbox.setAttribute('aria-hidden', 'true');
+    }
+
+    function showPrev() {
+        currentIndex = (currentIndex - 1 + images.length) % images.length;
+        lightboxImage.src = images[currentIndex];
+    }
+
+    function showNext() {
+        currentIndex = (currentIndex + 1) % images.length;
+        lightboxImage.src = images[currentIndex];
+    }
+
+    document.querySelectorAll('[data-gallery-index]').forEach(el => {
+        el.addEventListener('click', () => {
+            const index = Number(el.dataset.galleryIndex);
+            openLightbox(index);
+        });
+    });
+
+    closeBtn.onclick = closeLightbox;
+    prevBtn.onclick = showPrev;
+    nextBtn.onclick = showNext;
+
+    lightbox.onclick = (e) => {
+        if (e.target === lightbox) {
+            closeLightbox();
+        }
+    };
+
+    document.addEventListener('keydown', (e) => {
+        if (!lightbox.classList.contains('open')) return;
+
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') showPrev();
+        if (e.key === 'ArrowRight') showNext();
     });
 }

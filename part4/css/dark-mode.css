@@ -341,3 +341,173 @@ body.index-page.dark-mode #max-price-range::-moz-range-thumb {
     background: #9e5748;
     border: 2px solid #1b1d21;
 }
+
+/* =========================
+   DARK MODE - PLACE PAGE
+========================= */
+
+body.place-page.dark-mode {
+    background: #121212;
+    color: #f5f5f5;
+}
+
+/* =========================
+   TOP BAR
+========================= */
+
+body.place-page.dark-mode .place-top-bar {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.92) 0%,
+        rgba(24, 26, 31, 0.95) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+        0 22px 30px rgba(0,0,0,0.35),
+        0 1px 0 rgba(255,255,255,0.04) inset;
+}
+
+/* النصوص */
+body.place-page.dark-mode .place-top-title h1,
+body.place-page.dark-mode .place-top-location strong,
+body.place-page.dark-mode .place-top-location span {
+    color: #f5f5f5;
+}
+
+body.place-page.dark-mode .place-subtitle {
+    color: #c7bcbc;
+}
+
+body.place-page.dark-mode .place-top-price .amount {
+    color: #ffffff;
+}
+
+body.place-page.dark-mode .place-top-price .per-night {
+    color: #a8a8a8;
+}
+
+/* =========================
+   GALLERY
+========================= */
+
+body.place-page.dark-mode .gallery-main-image,
+body.place-page.dark-mode .gallery-thumb {
+    filter: brightness(0.92);
+}
+
+/* =========================
+   DESCRIPTION
+========================= */
+
+body.place-page.dark-mode .place-description-block h2 {
+    color: #ffffff;
+}
+
+body.place-page.dark-mode .place-description-block p {
+    color: #d0c6c6;
+}
+
+/* =========================
+   SIDEBAR CARDS
+========================= */
+
+body.place-page.dark-mode .sidebar-card {
+    background: linear-gradient(
+        180deg,
+        rgba(34, 36, 42, 0.92) 0%,
+        rgba(24, 26, 31, 0.95) 100%
+    );
+    border: 1px solid rgba(255,255,255,0.06);
+    box-shadow:
+        0 20px 28px rgba(0,0,0,0.35),
+        0 1px 0 rgba(255,255,255,0.04) inset;
+}
+
+/* =========================
+   RATING
+========================= */
+
+body.place-page.dark-mode .rating-value,
+body.place-page.dark-mode .review-count-number {
+    color: #ffffff;
+}
+
+body.place-page.dark-mode .rating-label,
+body.place-page.dark-mode .review-count-label {
+    color: #c7bcbc;
+}
+
+body.place-page.dark-mode .rating-stars {
+    color: #ff7272;
+}
+
+/* =========================
+   BOOKING CARD
+========================= */
+
+body.place-page.dark-mode .booking-dates-row strong {
+    color: #ffffff;
+}
+
+body.place-page.dark-mode .booking-dates-row span {
+    color: #c7bcbc;
+}
+
+body.place-page.dark-mode .booking-total strong,
+body.place-page.dark-mode .booking-total span {
+    color: #ffffff;
+}
+
+/* زر الحجز */
+body.place-page.dark-mode .book-now-btn {
+    color: #ff7272;
+}
+
+body.place-page.dark-mode .book-now-btn:hover {
+    color: #ff9c9c;
+}
+
+/* =========================
+   AMENITIES
+========================= */
+
+body.place-page.dark-mode .place-amenity {
+    color: #e6dede;
+}
+
+/* أيقونات تتحول أبيض */
+body.place-page.dark-mode .place-amenity img {
+    filter: brightness(0) invert(1);
+}
+
+/* =========================
+   LIGHTBOX
+========================= */
+
+body.place-page.dark-mode .gallery-lightbox {
+    background: rgba(0,0,0,0.92);
+}
+
+body.place-page.dark-mode .lightbox-nav {
+    background: rgba(255,255,255,0.12);
+}
+
+body.place-page.dark-mode .lightbox-close {
+    color: #ffffff;
+}
+
+/* =========================
+   BUTTONS (GHOST STYLE)
+========================= */
+
+body.place-page.dark-mode .details-button {
+    color: #ff7272;
+}
+
+body.place-page.dark-mode .details-button::after {
+    background: #ff7272;
+}
+
+body.place-page.dark-mode .details-button:hover {
+    color: #ff9c9c;
+}
