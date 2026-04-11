@@ -187,6 +187,20 @@ class HBnBFacade:
             return True, None
         except Exception as e:
             return False, str(e)
+        
+        
+        
+    def delete_place(self, place_id):
+        try:
+            lace = self.place_repository.get(place_id)
+            if not place_id:
+                return False, "Place not found"
+            
+            self.place_repository.delete(place_id)
+            return True, None
+        except Exception as e:
+            return False, str(e)
+
 
     # ================= REVIEWS =================
     def create_review(self, review_data):

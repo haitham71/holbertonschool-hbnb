@@ -771,3 +771,12 @@ body.admin-page.dark-mode .nav-link:hover,
 body.admin-page.dark-mode .nav-link.is-active {
     color: #f26161;
 }
+
+body.index-page.dark-mode .delete-place-btn {
+    background: rgba(0, 0, 0, 0.72);
+    color: #fff;
+}
+
+body.index-page.dark-mode .delete-place-btn:hover {
+    background: rgba(220, 60, 60, 0.92);
+}

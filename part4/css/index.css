@@ -376,6 +376,7 @@
 }
 
 .place-card {
+    position: relative;
     margin: 0;
     padding: 0;
     border: 1px solid #ddd;
@@ -385,9 +386,36 @@
     box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
     display: flex;
     flex-direction: row;
-    min-height: 235px;
+    height: 300px;
+}
 
-	height: 300px; 
+.place-card-top-actions {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 5;
+}
+
+.delete-place-btn {
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.72);
+    color: #ffffff;
+    font-size: 24px;
+    font-weight: 700;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.delete-place-btn:hover {
+    background: rgba(150, 30, 30, 0.9);
+    transform: scale(1.05);
 }
 
 .place-image {

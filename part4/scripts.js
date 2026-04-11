@@ -17,7 +17,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	checkAuthenticationAndLoadPlaceDetails();
 
 	setupReviewForm();
-	setupInlineReviewForm();
 
 	setupIndexHeroSlider();
 	setupDatePicker();
@@ -61,45 +60,74 @@ async function safeJson(response) {
 	}
 }
 
+function parseJwt(token) {
+	try {
+		const base64Url = token.split('.')[1];
+		const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+		return JSON.parse(atob(base64));
+	} catch {
+		return null;
+	}
+}
+
+function getCurrentUserId() {
+	const token = getToken();
+	if (!token) return null;
+
+	const payload = parseJwt(token);
+	return payload?.sub || payload?.identity || null;
+}
+
+function isCurrentUserAdmin() {
+	const token = getToken();
+	if (!token) return false;
+
+	const payload = parseJwt(token);
+	return Boolean(payload?.is_admin);
+}
+
 /* =========================
    Auth Nav Link
 ========================= */
 function updateAuthNavLink() {
-    const token = getToken();
-    const loginLink = document.getElementById('login-link');
-    const nav = document.querySelector('.top-nav');
+	const token = getToken();
+	const loginLink = document.getElementById('login-link');
+	const nav = document.querySelector('.top-nav');
 
-    if (!loginLink || !nav) return;
+	if (!loginLink || !nav) return;
 
-    const existingAdminLink = document.getElementById('admin-link');
-    if (existingAdminLink) existingAdminLink.remove();
+	const existingAdminLink = document.getElementById('admin-link');
+	if (existingAdminLink) existingAdminLink.remove();
 
-    if (token) {
-        const payload = parseJwt(token);
+	if (token) {
+		const payload = parseJwt(token);
 
-        if (payload && payload.is_admin) {
-            const adminLink = document.createElement('a');
-            adminLink.href = 'adminpage.html';
-            adminLink.textContent = 'Admin';
-            adminLink.className = 'nav-link';
-            adminLink.id = 'admin-link';
+		if (payload && payload.is_admin) {
+			const adminLink = document.createElement('a');
+			adminLink.href = 'adminpage.html';
+			adminLink.textContent = 'Admin';
+			adminLink.className = 'nav-link';
+			adminLink.id = 'admin-link';
 
-            nav.insertBefore(adminLink, loginLink);
-        }
+			if (window.location.pathname.includes('adminpage.html')) {
+				adminLink.classList.add('is-active');
+			}
 
-        loginLink.textContent = 'Sign Out';
-        loginLink.href = '#';
-        loginLink.onclick = function (e) {
-            e.preventDefault();
-            localStorage.removeItem('token');
-            window.location.href = 'login.html';
-        };
+			nav.insertBefore(adminLink, loginLink);
+		}
 
-    } else {
-        loginLink.textContent = 'Login';
-        loginLink.href = 'login.html';
-        loginLink.onclick = null;
-    }
+		loginLink.textContent = 'Sign Out';
+		loginLink.href = '#';
+		loginLink.onclick = function (e) {
+			e.preventDefault();
+			clearToken();
+			window.location.href = 'login.html';
+		};
+	} else {
+		loginLink.textContent = 'Login';
+		loginLink.href = 'login.html';
+		loginLink.onclick = null;
+	}
 }
 
 /* =========================
@@ -168,12 +196,13 @@ async function fetchPlaces(token) {
 			headers
 		});
 
-		if (!response.ok) throw new Error();
+		if (!response.ok) throw new Error(`Failed with status ${response.status}`);
 
 		const data = await safeJson(response);
 		allPlaces = Array.isArray(data) ? data : [];
 		displayPlaces(allPlaces);
-	} catch {
+	} catch (error) {
+		console.error('fetchPlaces error:', error);
 		const placesList = document.getElementById('places-list');
 		if (placesList) {
 			placesList.innerHTML = '<p>Failed to load places.</p>';
@@ -193,6 +222,9 @@ function displayPlaces(places) {
 		parking: 'icons/parking.png',
 		pool: 'icons/swimming.png'
 	};
+
+	const currentUserId = getCurrentUserId();
+	const isAdmin = isCurrentUserAdmin();
 
 	container.innerHTML = '';
 
@@ -220,7 +252,21 @@ function displayPlaces(places) {
 				.join('')
 			: '';
 
+		const canDeletePlace = isAdmin || (currentUserId && place.owner_id === currentUserId);
+
 		card.innerHTML = `
+			<div class="place-card-top-actions">
+				${canDeletePlace ? `
+					<button
+						type="button"
+						class="delete-place-btn"
+						data-place-id="${place.id}"
+						aria-label="Delete place"
+						title="Delete place"
+					>×</button>
+				` : ''}
+			</div>
+
 			${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-image">` : ''}
 
 			<div class="place-card-content">
@@ -252,6 +298,49 @@ function displayPlaces(places) {
 
 		container.appendChild(card);
 	});
+
+	container.querySelectorAll('.delete-place-btn').forEach(button => {
+		button.addEventListener('click', () => {
+			const placeId = button.dataset.placeId;
+			confirmDeletePlace(placeId);
+		});
+	});
+}
+
+function confirmDeletePlace(placeId) {
+	if (!placeId) return;
+
+	const confirmed = window.confirm('Are you sure you want to delete this place? This action cannot be undone.');
+	if (!confirmed) return;
+
+	deletePlace(placeId);
+}
+
+async function deletePlace(placeId) {
+	const token = getToken();
+	if (!token || !placeId) return;
+
+	try {
+		const response = await fetch(`${API_BASE_URL}/places/${placeId}`, {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
+
+		const data = await safeJson(response);
+
+		if (!response.ok) {
+			alert(data?.message || data?.error || 'Failed to delete place.');
+			return;
+		}
+
+		allPlaces = allPlaces.filter(place => place.id !== placeId);
+		displayPlaces(allPlaces);
+		alert('Place deleted successfully.');
+	} catch {
+		alert('Server error while deleting place.');
+	}
 }
 
 function setupPriceFilter() {
@@ -340,7 +429,7 @@ function checkAuthenticationAndLoadPlaceDetails() {
 	updateAuthNavLink();
 
 	if (addReviewSection) {
-		addReviewSection.style.display = token ? 'block' : 'block';
+		addReviewSection.style.display = 'block';
 	}
 
 	if (!placeId) {
@@ -417,11 +506,11 @@ function displayPlaceDetails(place) {
 				const icon = amenityIcons[amenityName.trim().toLowerCase()];
 
 				return `
-				<div class="place-amenity">
-					<img src="${icon}" alt="${amenityName}">
-					<span>${amenityName}</span>
-				</div>
-			`;
+					<div class="place-amenity">
+						<img src="${icon}" alt="${amenityName}">
+						<span>${amenityName}</span>
+					</div>
+				`;
 			}).join('')
 		: '<p>No supported amenities available.</p>';
 
@@ -643,11 +732,13 @@ function setupReviewForm() {
 				})
 			});
 
+			const data = await safeJson(res);
+
 			if (res.ok) {
 				if (msg) msg.textContent = 'Review submitted successfully!';
 				form.reset();
 			} else {
-				if (msg) msg.textContent = 'Failed to submit review.';
+				if (msg) msg.textContent = data?.message || data?.error || 'Failed to submit review.';
 			}
 		} catch {
 			if (msg) msg.textContent = 'Server error.';
@@ -943,6 +1034,7 @@ function setupSearchButton() {
 		if (locationValue) {
 			filtered = filtered.filter(place =>
 				(place.title && place.title.toLowerCase().includes(locationValue)) ||
+				(place.short_description && place.short_description.toLowerCase().includes(locationValue)) ||
 				(place.description && place.description.toLowerCase().includes(locationValue)) ||
 				(place.city && place.city.toLowerCase().includes(locationValue))
 			);
@@ -1185,8 +1277,10 @@ function setupInlineReviewForm(placeId) {
 				})
 			});
 
+			const data = await safeJson(response);
+
 			if (!response.ok) {
-				message.textContent = 'Failed to submit review.';
+				message.textContent = data?.message || data?.error || 'Failed to submit review.';
 				return;
 			}
 
@@ -1417,211 +1511,204 @@ function setupAddPlaceForm() {
 	});
 }
 
-function parseJwt(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        return JSON.parse(atob(base64));
-    } catch {
-        return null;
-    }
-}
-
+/* =========================
+   Admin Page
+========================= */
 function protectAdminPage() {
-    if (!document.body.classList.contains('admin-page')) return;
+	if (!document.body.classList.contains('admin-page')) return;
 
-    const token = getToken();
-    if (!token) {
-        window.location.href = 'login.html';
-        return;
-    }
+	const token = getToken();
+	if (!token) {
+		window.location.href = 'login.html';
+		return;
+	}
 
-    const payload = parseJwt(token);
-    if (!payload || !payload.is_admin) {
-        window.location.href = 'index.html';
-    }
+	const payload = parseJwt(token);
+	if (!payload || !payload.is_admin) {
+		window.location.href = 'index.html';
+	}
 }
 
 async function loadAdminAmenities() {
-    const container = document.getElementById('admin-amenities-list');
-    if (!container) return;
+	const container = document.getElementById('admin-amenities-list');
+	if (!container) return;
 
-    try {
-        const res = await fetch(`${API_BASE_URL}/amenities/`);
-        if (!res.ok) throw new Error();
+	try {
+		const res = await fetch(`${API_BASE_URL}/amenities/`);
+		if (!res.ok) throw new Error();
 
-        const amenities = await res.json();
-        container.innerHTML = '';
+		const amenities = await safeJson(res);
+		container.innerHTML = '';
 
-        amenities.forEach(amenity => {
-            container.innerHTML += `
-                <div class="admin-amenity-item">
-                    <span class="admin-amenity-name">${amenity.name}</span>
-                    <button
-                        type="button"
-                        class="delete-mini-btn"
-                        data-amenity-id="${amenity.id}"
-                        aria-label="Delete amenity"
-                    >−</button>
-                </div>
-            `;
-        });
+		amenities.forEach(amenity => {
+			container.innerHTML += `
+				<div class="admin-amenity-item">
+					<span class="admin-amenity-name">${amenity.name}</span>
+					<button
+						type="button"
+						class="delete-mini-btn"
+						data-amenity-id="${amenity.id}"
+						aria-label="Delete amenity"
+					>−</button>
+				</div>
+			`;
+		});
 
-        container.querySelectorAll('.delete-mini-btn').forEach(btn => {
-            btn.addEventListener('click', () => deleteAmenity(btn.dataset.amenityId));
-        });
-    } catch {
-        container.innerHTML = '<p>Failed to load amenities.</p>';
-    }
+		container.querySelectorAll('.delete-mini-btn').forEach(btn => {
+			btn.addEventListener('click', () => deleteAmenity(btn.dataset.amenityId));
+		});
+	} catch {
+		container.innerHTML = '<p>Failed to load amenities.</p>';
+	}
 }
 
 function setupAdminAmenityForm() {
-    const btn = document.getElementById('add-amenity-btn');
-    const input = document.getElementById('new-amenity-name');
-    const message = document.getElementById('admin-amenity-message');
+	const btn = document.getElementById('add-amenity-btn');
+	const input = document.getElementById('new-amenity-name');
+	const message = document.getElementById('admin-amenity-message');
 
-    if (!btn || !input) return;
+	if (!btn || !input) return;
 
-    btn.addEventListener('click', async () => {
-        const token = getToken();
-        const name = input.value.trim();
+	btn.addEventListener('click', async () => {
+		const token = getToken();
+		const name = input.value.trim();
 
-        if (!name) return;
+		if (!name) return;
 
-        if (message) message.textContent = '';
+		if (message) message.textContent = '';
 
-        try {
-            const res = await fetch(`${API_BASE_URL}/amenities/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({ name })
-            });
+		try {
+			const res = await fetch(`${API_BASE_URL}/amenities/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
+				body: JSON.stringify({ name })
+			});
 
-            const data = await res.json().catch(() => null);
+			const data = await safeJson(res);
 
-            if (!res.ok) {
-                if (message) message.textContent = data?.message || data?.error || 'Failed to add amenity.';
-                return;
-            }
+			if (!res.ok) {
+				if (message) message.textContent = data?.message || data?.error || 'Failed to add amenity.';
+				return;
+			}
 
-            input.value = '';
-            if (message) message.textContent = 'Amenity added successfully.';
-            loadAdminAmenities();
-            loadAmenitiesForAddPlace();
-        } catch {
-            if (message) message.textContent = 'Server error.';
-        }
-    });
+			input.value = '';
+			if (message) message.textContent = 'Amenity added successfully.';
+			loadAdminAmenities();
+			loadAmenitiesForAddPlace();
+		} catch {
+			if (message) message.textContent = 'Server error.';
+		}
+	});
 }
 
 async function deleteAmenity(amenityId) {
-    const token = getToken();
-    if (!token || !amenityId) return;
+	const token = getToken();
+	if (!token || !amenityId) return;
 
-    try {
-        const res = await fetch(`${API_BASE_URL}/amenities/${amenityId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+	try {
+		const res = await fetch(`${API_BASE_URL}/amenities/${amenityId}`, {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
 
-        if (!res.ok) return;
+		if (!res.ok) return;
 
-        loadAdminAmenities();
-        loadAmenitiesForAddPlace();
-    } catch {
-        console.log('Failed to delete amenity');
-    }
+		loadAdminAmenities();
+		loadAmenitiesForAddPlace();
+	} catch {
+		console.log('Failed to delete amenity');
+	}
 }
 
 async function loadAdminReviews(placeId = '') {
-    const container = document.getElementById('admin-reviews-list');
-    if (!container) return;
+	const container = document.getElementById('admin-reviews-list');
+	if (!container) return;
 
-    try {
-        const query = placeId ? `?place_id=${encodeURIComponent(placeId)}` : '';
-        const res = await fetch(`${API_BASE_URL}/reviews/${query}`);
-        if (!res.ok) throw new Error();
+	try {
+		const query = placeId ? `?place_id=${encodeURIComponent(placeId)}` : '';
+		const res = await fetch(`${API_BASE_URL}/reviews/${query}`);
+		if (!res.ok) throw new Error();
 
-        const reviews = await res.json();
-        container.innerHTML = '';
+		const reviews = await safeJson(res);
+		container.innerHTML = '';
 
-        if (!reviews.length) {
-            container.innerHTML = '<p>No reviews found.</p>';
-            return;
-        }
+		if (!reviews.length) {
+			container.innerHTML = '<p>No reviews found.</p>';
+			return;
+		}
 
-        reviews.forEach(review => {
-            container.innerHTML += `
-                <div class="admin-review-card">
-                    <div class="admin-review-place">Place ID: ${review.place_id}</div>
-                    <div class="admin-review-title">Review</div>
-                    <div class="admin-review-text">${review.text}</div>
+		reviews.forEach(review => {
+			container.innerHTML += `
+				<div class="admin-review-card">
+					<div class="admin-review-place">Place ID: ${review.place_id}</div>
+					<div class="admin-review-title">Review</div>
+					<div class="admin-review-text">${review.text}</div>
 
-                    <div class="admin-review-footer">
-                        <div class="admin-review-meta">
-                            Rating: ${review.rating} | User ID: ${review.user_id}
-                        </div>
-                        <button
-                            type="button"
-                            class="review-delete-btn"
-                            data-review-id="${review.id}"
-                        >
-                            Delete review
-                        </button>
-                    </div>
-                </div>
-            `;
-        });
+					<div class="admin-review-footer">
+						<div class="admin-review-meta">
+							Rating: ${review.rating} | User ID: ${review.user_id}
+						</div>
+						<button
+							type="button"
+							class="review-delete-btn"
+							data-review-id="${review.id}"
+						>
+							Delete review
+						</button>
+					</div>
+				</div>
+			`;
+		});
 
-        container.querySelectorAll('.review-delete-btn').forEach(btn => {
-            btn.addEventListener('click', () => deleteAdminReview(btn.dataset.reviewId));
-        });
-    } catch {
-        container.innerHTML = '<p>Failed to load reviews.</p>';
-    }
+		container.querySelectorAll('.review-delete-btn').forEach(btn => {
+			btn.addEventListener('click', () => deleteAdminReview(btn.dataset.reviewId));
+		});
+	} catch {
+		container.innerHTML = '<p>Failed to load reviews.</p>';
+	}
 }
 
 function setupAdminReviewSearch() {
-    const searchBtn = document.getElementById('search-reviews-btn');
-    const loadAllBtn = document.getElementById('load-all-reviews-btn');
-    const input = document.getElementById('review-place-id-search');
+	const searchBtn = document.getElementById('search-reviews-btn');
+	const loadAllBtn = document.getElementById('load-all-reviews-btn');
+	const input = document.getElementById('review-place-id-search');
 
-    if (searchBtn && input) {
-        searchBtn.addEventListener('click', () => {
-            loadAdminReviews(input.value.trim());
-        });
-    }
+	if (searchBtn && input) {
+		searchBtn.addEventListener('click', () => {
+			loadAdminReviews(input.value.trim());
+		});
+	}
 
-    if (loadAllBtn) {
-        loadAllBtn.addEventListener('click', () => {
-            if (input) input.value = '';
-            loadAdminReviews();
-        });
-    }
+	if (loadAllBtn) {
+		loadAllBtn.addEventListener('click', () => {
+			if (input) input.value = '';
+			loadAdminReviews();
+		});
+	}
 }
 
 async function deleteAdminReview(reviewId) {
-    const token = getToken();
-    if (!token || !reviewId) return;
+	const token = getToken();
+	if (!token || !reviewId) return;
 
-    try {
-        const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
-            method: 'DELETE',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+	try {
+		const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
+			method: 'DELETE',
+			headers: {
+				Authorization: `Bearer ${token}`
+			}
+		});
 
-        if (!res.ok) return;
+		if (!res.ok) return;
 
-        const input = document.getElementById('review-place-id-search');
-        loadAdminReviews(input ? input.value.trim() : '');
-    } catch {
-        console.log('Failed to delete review');
-    }
-}
+		const input = document.getElementById('review-place-id-search');
+		loadAdminReviews(input ? input.value.trim() : '');
+	} catch {
+		console.log('Failed to delete review');
+	}
+}c

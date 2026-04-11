@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services.facade import HBnBFacade
 from app.models.place_image import PlaceImage
 from app.models.basemodel import db
@@ -93,13 +93,36 @@ class PlaceResource(Resource):
         if not place:
             api.abort(404, "Place not found")
 
-        user_id = get_jwt_identity()
-        if place.owner_id != user_id:
-            api.abort(403, "You can only modify your own place")
+        current_user_id = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get("is_admin", False)
+
+        if place.owner_id != current_user_id and not is_admin:
+            api.abort(403, "You can only modify your own place unless you are admin")
 
         success, result = facade.update_place(place_id, request.json)
         if success:
             return result.to_dict(), 200
+        api.abort(400, result)
+
+    @jwt_required()
+    def delete(self, place_id):
+        """Delete place"""
+        place = facade.get_place(place_id)
+        if not place:
+            api.abort(404, "Place not found")
+
+        current_user_id = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get("is_admin", False)
+
+        if place.owner_id != current_user_id and not is_admin:
+            api.abort(403, "You can only delete your own place unless you are admin")
+
+        success, result = facade.delete_place(place_id)
+        if success:
+            return {"message": "Place deleted successfully"}, 200
+
         api.abort(400, result)
 
 
@@ -130,9 +153,12 @@ class PlaceImageList(Resource):
         if not place:
             api.abort(404, "Place not found")
 
-        user_id = get_jwt_identity()
-        if place.owner_id != user_id:
-            api.abort(403, "You can only modify your own place")
+        current_user_id = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get("is_admin", False)
+
+        if place.owner_id != current_user_id and not is_admin:
+            api.abort(403, "You can only modify your own place unless you are admin")
 
         data = request.json
         image = PlaceImage(place_id=place_id, image_url=data['image_url'])
@@ -151,9 +177,15 @@ class PlaceImageResource(Resource):
             api.abort(404, "Image not found")
 
         place = facade.get_place(image.place_id)
-        user_id = get_jwt_identity()
-        if not place or place.owner_id != user_id:
-            api.abort(403, "You can only modify your own place")
+        current_user_id = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get("is_admin", False)
+
+        if not place:
+            api.abort(404, "Place not found")
+
+        if place.owner_id != current_user_id and not is_admin:
+            api.abort(403, "You can only modify your own place unless you are admin")
 
         db.session.delete(image)
         db.session.commit()
