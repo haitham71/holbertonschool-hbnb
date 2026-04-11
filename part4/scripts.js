@@ -34,6 +34,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 	setupAddPlaceImageInputs();
 	setupAddPlaceForm();
+
+	protectAdminPage();
+	setupAdminAmenityForm();
+	loadAdminAmenities();
+	setupAdminReviewSearch();
+	loadAdminReviews();
 });
 
 /* =========================
@@ -59,24 +65,41 @@ async function safeJson(response) {
    Auth Nav Link
 ========================= */
 function updateAuthNavLink() {
-	const token = getToken();
-	const loginLink = document.getElementById('login-link');
+    const token = getToken();
+    const loginLink = document.getElementById('login-link');
+    const nav = document.querySelector('.top-nav');
 
-	if (!loginLink) return;
+    if (!loginLink || !nav) return;
 
-	if (token) {
-		loginLink.textContent = 'Sign Out';
-		loginLink.href = '#';
-		loginLink.onclick = function (e) {
-			e.preventDefault();
-			clearToken();
-			window.location.href = 'login.html';
-		};
-	} else {
-		loginLink.textContent = 'Login';
-		loginLink.href = 'login.html';
-		loginLink.onclick = null;
-	}
+    const existingAdminLink = document.getElementById('admin-link');
+    if (existingAdminLink) existingAdminLink.remove();
+
+    if (token) {
+        const payload = parseJwt(token);
+
+        if (payload && payload.is_admin) {
+            const adminLink = document.createElement('a');
+            adminLink.href = 'adminpage.html';
+            adminLink.textContent = 'Admin';
+            adminLink.className = 'nav-link';
+            adminLink.id = 'admin-link';
+
+            nav.insertBefore(adminLink, loginLink);
+        }
+
+        loginLink.textContent = 'Sign Out';
+        loginLink.href = '#';
+        loginLink.onclick = function (e) {
+            e.preventDefault();
+            localStorage.removeItem('token');
+            window.location.href = 'login.html';
+        };
+
+    } else {
+        loginLink.textContent = 'Login';
+        loginLink.href = 'login.html';
+        loginLink.onclick = null;
+    }
 }
 
 /* =========================
@@ -383,23 +406,23 @@ function displayPlaceDetails(place) {
 		pool: 'icons/swimming.png'
 	};
 
-const amenitiesHtml = place.amenities?.length
-	? place.amenities
-		.filter(amenity => {
-			const amenityName = (amenity.name || '').trim().toLowerCase();
-			return amenityIcons[amenityName];
-		})
-		.map(amenity => {
-			const amenityName = amenity.name || 'Amenity';
-			const icon = amenityIcons[amenityName.trim().toLowerCase()];
+	const amenitiesHtml = place.amenities?.length
+		? place.amenities
+			.filter(amenity => {
+				const amenityName = (amenity.name || '').trim().toLowerCase();
+				return amenityIcons[amenityName];
+			})
+			.map(amenity => {
+				const amenityName = amenity.name || 'Amenity';
+				const icon = amenityIcons[amenityName.trim().toLowerCase()];
 
-			return `
+				return `
 				<div class="place-amenity">
 					<img src="${icon}" alt="${amenityName}">
 					<span>${amenityName}</span>
 				</div>
 			`;
-		}).join('')
+			}).join('')
 		: '<p>No supported amenities available.</p>';
 
 	const sideImagesHtml = sideImages.map((img, index) => {
@@ -675,9 +698,25 @@ function setupThemeToggle() {
 
 	if (!lightBtn || !darkBtn) return;
 
+	const savedTheme = localStorage.getItem('theme');
+
+	if (savedTheme === 'dark') {
+		page.classList.add('dark-mode');
+		page.classList.remove('light-mode');
+		darkBtn.classList.add('active');
+		lightBtn.classList.remove('active');
+	} else {
+		page.classList.add('light-mode');
+		page.classList.remove('dark-mode');
+		lightBtn.classList.add('active');
+		darkBtn.classList.remove('active');
+	}
+
 	lightBtn.addEventListener('click', () => {
 		page.classList.remove('dark-mode');
 		page.classList.add('light-mode');
+		localStorage.setItem('theme', 'light');
+
 		lightBtn.classList.add('active');
 		darkBtn.classList.remove('active');
 	});
@@ -685,6 +724,8 @@ function setupThemeToggle() {
 	darkBtn.addEventListener('click', () => {
 		page.classList.remove('light-mode');
 		page.classList.add('dark-mode');
+		localStorage.setItem('theme', 'dark');
+
 		darkBtn.classList.add('active');
 		lightBtn.classList.remove('active');
 	});
@@ -1374,4 +1415,213 @@ function setupAddPlaceForm() {
 			}
 		}
 	});
+}
+
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        return JSON.parse(atob(base64));
+    } catch {
+        return null;
+    }
+}
+
+function protectAdminPage() {
+    if (!document.body.classList.contains('admin-page')) return;
+
+    const token = getToken();
+    if (!token) {
+        window.location.href = 'login.html';
+        return;
+    }
+
+    const payload = parseJwt(token);
+    if (!payload || !payload.is_admin) {
+        window.location.href = 'index.html';
+    }
+}
+
+async function loadAdminAmenities() {
+    const container = document.getElementById('admin-amenities-list');
+    if (!container) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/amenities/`);
+        if (!res.ok) throw new Error();
+
+        const amenities = await res.json();
+        container.innerHTML = '';
+
+        amenities.forEach(amenity => {
+            container.innerHTML += `
+                <div class="admin-amenity-item">
+                    <span class="admin-amenity-name">${amenity.name}</span>
+                    <button
+                        type="button"
+                        class="delete-mini-btn"
+                        data-amenity-id="${amenity.id}"
+                        aria-label="Delete amenity"
+                    >−</button>
+                </div>
+            `;
+        });
+
+        container.querySelectorAll('.delete-mini-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteAmenity(btn.dataset.amenityId));
+        });
+    } catch {
+        container.innerHTML = '<p>Failed to load amenities.</p>';
+    }
+}
+
+function setupAdminAmenityForm() {
+    const btn = document.getElementById('add-amenity-btn');
+    const input = document.getElementById('new-amenity-name');
+    const message = document.getElementById('admin-amenity-message');
+
+    if (!btn || !input) return;
+
+    btn.addEventListener('click', async () => {
+        const token = getToken();
+        const name = input.value.trim();
+
+        if (!name) return;
+
+        if (message) message.textContent = '';
+
+        try {
+            const res = await fetch(`${API_BASE_URL}/amenities/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${token}`
+                },
+                body: JSON.stringify({ name })
+            });
+
+            const data = await res.json().catch(() => null);
+
+            if (!res.ok) {
+                if (message) message.textContent = data?.message || data?.error || 'Failed to add amenity.';
+                return;
+            }
+
+            input.value = '';
+            if (message) message.textContent = 'Amenity added successfully.';
+            loadAdminAmenities();
+            loadAmenitiesForAddPlace();
+        } catch {
+            if (message) message.textContent = 'Server error.';
+        }
+    });
+}
+
+async function deleteAmenity(amenityId) {
+    const token = getToken();
+    if (!token || !amenityId) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/amenities/${amenityId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) return;
+
+        loadAdminAmenities();
+        loadAmenitiesForAddPlace();
+    } catch {
+        console.log('Failed to delete amenity');
+    }
+}
+
+async function loadAdminReviews(placeId = '') {
+    const container = document.getElementById('admin-reviews-list');
+    if (!container) return;
+
+    try {
+        const query = placeId ? `?place_id=${encodeURIComponent(placeId)}` : '';
+        const res = await fetch(`${API_BASE_URL}/reviews/${query}`);
+        if (!res.ok) throw new Error();
+
+        const reviews = await res.json();
+        container.innerHTML = '';
+
+        if (!reviews.length) {
+            container.innerHTML = '<p>No reviews found.</p>';
+            return;
+        }
+
+        reviews.forEach(review => {
+            container.innerHTML += `
+                <div class="admin-review-card">
+                    <div class="admin-review-place">Place ID: ${review.place_id}</div>
+                    <div class="admin-review-title">Review</div>
+                    <div class="admin-review-text">${review.text}</div>
+
+                    <div class="admin-review-footer">
+                        <div class="admin-review-meta">
+                            Rating: ${review.rating} | User ID: ${review.user_id}
+                        </div>
+                        <button
+                            type="button"
+                            class="review-delete-btn"
+                            data-review-id="${review.id}"
+                        >
+                            Delete review
+                        </button>
+                    </div>
+                </div>
+            `;
+        });
+
+        container.querySelectorAll('.review-delete-btn').forEach(btn => {
+            btn.addEventListener('click', () => deleteAdminReview(btn.dataset.reviewId));
+        });
+    } catch {
+        container.innerHTML = '<p>Failed to load reviews.</p>';
+    }
+}
+
+function setupAdminReviewSearch() {
+    const searchBtn = document.getElementById('search-reviews-btn');
+    const loadAllBtn = document.getElementById('load-all-reviews-btn');
+    const input = document.getElementById('review-place-id-search');
+
+    if (searchBtn && input) {
+        searchBtn.addEventListener('click', () => {
+            loadAdminReviews(input.value.trim());
+        });
+    }
+
+    if (loadAllBtn) {
+        loadAllBtn.addEventListener('click', () => {
+            if (input) input.value = '';
+            loadAdminReviews();
+        });
+    }
+}
+
+async function deleteAdminReview(reviewId) {
+    const token = getToken();
+    if (!token || !reviewId) return;
+
+    try {
+        const res = await fetch(`${API_BASE_URL}/reviews/${reviewId}`, {
+            method: 'DELETE',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+
+        if (!res.ok) return;
+
+        const input = document.getElementById('review-place-id-search');
+        loadAdminReviews(input ? input.value.trim() : '');
+    } catch {
+        console.log('Failed to delete review');
+    }
 }

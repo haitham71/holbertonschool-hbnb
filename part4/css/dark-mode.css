@@ -673,3 +673,101 @@ body.add-place-page.dark-mode .preview-gallery-item {
 body.add-place-page.dark-mode .add-place-message {
     color: #dba6a6;
 }
+
+/* =========================
+   ADMIN PAGE - DARK MODE
+========================= */
+
+body.admin-page.dark-mode {
+    background: #1f2529;
+    color: #f5e6e6;
+}
+
+body.admin-page.dark-mode .page-overlay {
+    background: rgba(15, 18, 20, 0.34);
+}
+
+body.admin-page.dark-mode .admin-card {
+    background: rgba(31, 37, 41, 0.88);
+    border: 1px solid rgba(245, 230, 230, 0.16);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.28);
+}
+
+body.admin-page.dark-mode .admin-card h2,
+body.admin-page.dark-mode .admin-review-title,
+body.admin-page.dark-mode .admin-amenity-name,
+body.admin-page.dark-mode .admin-review-place {
+    color: #f5e6e6;
+}
+
+body.admin-page.dark-mode .admin-review-text,
+body.admin-page.dark-mode .admin-review-meta,
+body.admin-page.dark-mode .admin-message {
+    color: rgba(245, 230, 230, 0.82);
+}
+
+body.admin-page.dark-mode .search-row input,
+body.admin-page.dark-mode .amenity-add-row input {
+    background: rgba(255, 255, 255, 0.06);
+    border: 1.5px solid rgba(245, 230, 230, 0.22);
+    color: #f5e6e6;
+}
+
+body.admin-page.dark-mode .search-row input::placeholder,
+body.admin-page.dark-mode .amenity-add-row input::placeholder {
+    color: rgba(245, 230, 230, 0.48);
+}
+
+body.admin-page.dark-mode .search-row input:focus,
+body.admin-page.dark-mode .amenity-add-row input:focus {
+    background: transparent;
+    border-color: rgba(247, 90, 57, 0.78);
+    box-shadow: 0 0 0 3px rgba(247, 90, 57, 0.12);
+}
+
+body.admin-page.dark-mode .admin-review-card {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(245, 230, 230, 0.12);
+}
+
+body.admin-page.dark-mode .admin-amenity-item {
+    border-bottom: 1px solid rgba(245, 230, 230, 0.1);
+}
+
+body.admin-page.dark-mode .amenity-action-btn,
+body.admin-page.dark-mode .delete-mini-btn,
+body.admin-page.dark-mode .review-delete-btn {
+    color: #f26161;
+}
+
+body.admin-page.dark-mode .amenity-action-btn:hover,
+body.admin-page.dark-mode .delete-mini-btn:hover,
+body.admin-page.dark-mode .review-delete-btn:hover {
+    color: #ff8a80;
+}
+
+body.admin-page.dark-mode .details-button {
+    color: #f5b3a6;
+}
+
+body.admin-page.dark-mode .details-button::after {
+    background: #f26161;
+}
+
+body.admin-page.dark-mode .details-button:hover {
+    color: #ffd1c7;
+}
+
+body.admin-page.dark-mode .top-nav {
+    background: rgba(31, 37, 41, 0.62);
+    backdrop-filter: blur(10px);
+}
+
+body.admin-page.dark-mode .nav-link {
+    color: #f5e6e6;
+}
+
+body.admin-page.dark-mode .nav-link:hover,
+body.admin-page.dark-mode .nav-link.is-active {
+    color: #f26161;
+}

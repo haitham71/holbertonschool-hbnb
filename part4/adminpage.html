@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Page - HBnB</title>
+
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/dark-mode.css">
+    <link rel="stylesheet" href="css/adminpage.css">
+	<link rel="stylesheet" href="css/index.css">
+</head>
+<body class="page-shell admin-page light-mode">
+    <div class="hero-bg">
+        <div class="bg-slide active" style="background-image: url('BG-IMGS/Los-angles.png');"></div>
+    </div>
+
+    <div class="page-overlay"></div>
+
+    <header class="site-header">
+        <nav class="top-nav">
+            <a href="index.html" class="nav-link">Home</a>
+            <a href="adminpage.html" class="nav-link is-active">Admin</a>
+            <a href="login.html" class="nav-link" id="login-link">Login</a>
+        </nav>
+
+        <img src="logo.png" alt="HBnB Logo" class="site-logo">
+
+        <div class="theme-toggle">
+            <button type="button" class="theme-btn active" id="light-mode-btn" aria-label="Light mode">
+                <img src="icons/sun.png" alt="Light mode">
+            </button>
+            <button type="button" class="theme-btn" id="dark-mode-btn" aria-label="Dark mode">
+                <img src="icons/moon.png" alt="Dark mode">
+            </button>
+        </div>
+    </header>
+
+    <main class="admin-main">
+        <section class="admin-layout">
+            <div class="admin-left">
+                <div class="admin-card search-card">
+                    <h2>Search reviews by place id</h2>
+                    <div class="search-row">
+                        <input type="text" id="review-place-id-search" placeholder="Enter place id">
+                        <button type="button" id="search-reviews-btn" class="details-button">Search</button>
+                        <button type="button" id="load-all-reviews-btn" class="details-button">Show All</button>
+                    </div>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Reviews</h2>
+                    <div id="admin-reviews-list" class="admin-reviews-list"></div>
+                </div>
+            </div>
+
+            <aside class="admin-right">
+                <div class="admin-card">
+                    <h2>Add amenity</h2>
+                    <div class="amenity-add-row">
+                        <input type="text" id="new-amenity-name" placeholder="Amenity name">
+                        <button type="button" id="add-amenity-btn" class="amenity-action-btn">+</button>
+                    </div>
+                    <p id="admin-amenity-message" class="admin-message"></p>
+                </div>
+
+                <div class="admin-card">
+                    <h2>Amenities</h2>
+                    <div id="admin-amenities-list" class="admin-amenities-list"></div>
+                </div>
+            </aside>
+        </section>
+    </main>
+
+    <script src="scripts.js"></script>
+</body>
+</html>

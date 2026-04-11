@@ -58,3 +58,15 @@ class AmenityResource(Resource):
         if success:
             return result.to_dict(), 200
         api.abort(400, result)
+        
+    @jwt_required()
+    def delete(self, amenity_id):
+        """Delete amenity (admin only)"""
+        current_user = get_jwt()
+        if not current_user.get('is_admin'):
+            api.abort(403, 'Admin privileges required')
+
+        success, result = facade.delete_amenity(amenity_id)
+        if success:
+            return {"message": "Amenity deleted successfully"}, 200
+        api.abort(400, result)

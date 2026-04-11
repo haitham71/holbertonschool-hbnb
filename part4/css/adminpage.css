@@ -1,0 +1,197 @@
+.site-logo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.admin-page {
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+}
+
+.admin-page .hero-bg {
+    height: 34vh;
+    min-height: 260px;
+}
+
+.admin-main {
+    position: relative;
+    z-index: 10;
+    width: calc(100% - 34px);
+    max-width: 1400px;
+    margin: 220px auto 30px;
+}
+
+.admin-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 28px;
+    align-items: start;
+}
+
+.admin-left,
+.admin-right {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.admin-card {
+    background: #e8dadb;
+    border: 1px solid #2f2727;
+    border-radius: 24px;
+    padding: 18px 20px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.admin-card h2 {
+    margin: 0 0 16px 0;
+    font-size: 22px;
+    font-weight: 800;
+    color: #111;
+}
+
+.search-row,
+.amenity-add-row {
+    display: grid;
+    grid-template-columns: 1fr auto auto;
+    gap: 10px;
+    align-items: center;
+}
+
+.amenity-add-row {
+    grid-template-columns: 1fr 50px;
+}
+
+.search-row input,
+.amenity-add-row input {
+    width: 100%;
+    height: 42px;
+    border-radius: 999px;
+    border: 1.5px solid rgba(79, 68, 68, 0.85);
+    background: rgba(255, 255, 255, 0.18);
+    padding: 0 14px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.search-row input:focus,
+.amenity-add-row input:focus {
+    background: transparent;
+}
+
+.amenity-action-btn {
+    width: 50px;
+    height: 42px;
+    border: none;
+    background: none;
+    font-size: 34px;
+    font-weight: 800;
+    cursor: pointer;
+    color: #111;
+}
+
+.admin-message {
+    margin: 10px 0 0 0;
+    min-height: 20px;
+    color: #9e5748;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.admin-amenities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.admin-amenity-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(95, 83, 83, 0.25);
+}
+
+.admin-amenity-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2f2727;
+}
+
+.delete-mini-btn {
+    border: none;
+    background: none;
+    color: #c62828;
+    font-size: 28px;
+    font-weight: 800;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.admin-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.admin-review-card {
+    border: 1px solid rgba(47, 39, 39, 0.55);
+    border-radius: 22px;
+    padding: 16px 18px;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.admin-review-place {
+    font-size: 15px;
+    color: #2f2727;
+    margin-bottom: 6px;
+}
+
+.admin-review-title {
+    font-size: 18px;
+    font-weight: 800;
+    color: #111;
+    margin-bottom: 8px;
+}
+
+.admin-review-text {
+    font-size: 15px;
+    color: #2f2727;
+    margin-bottom: 12px;
+}
+
+.admin-review-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+}
+
+.admin-review-meta {
+    font-size: 14px;
+    color: #7e6f6f;
+    font-weight: 600;
+}
+
+.review-delete-btn {
+    border: none;
+    background: none;
+    color: #c62828;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.review-delete-btn:hover{
+    border: none;
+    background: none;
+    color: #793232;
+    font-size: 18px;
+    font-weight: 700;
+    cursor: pointer;
+}

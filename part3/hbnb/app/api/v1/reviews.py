@@ -1,6 +1,6 @@
 from flask_restx import Namespace, Resource, fields
 from flask import request
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 from app.services.facade import HBnBFacade
 
 api = Namespace('reviews', description='Review operations')
@@ -38,8 +38,13 @@ class ReviewList(Resource):
         api.abort(400, result)
 
     def get(self):
-        """Get all reviews"""
-        reviews = facade.get_all_reviews()
+        """Get all reviews or filter by place_id"""
+        place_id = request.args.get("place_id")
+        
+        if place_id:
+            reviews = facade.get_reviews_by_place(place_id)
+        else:
+            reviews = facade.get_all_reviews()
         return [r.to_dict() for r in reviews], 200
 
 @api.route('/<string:review_id>')
@@ -75,6 +80,27 @@ class ReviewResource(Resource):
 
         if review.user_id != get_jwt_identity():
             api.abort(403, "You can only delete your own review")
+
+        success, result = facade.delete_review(review_id)
+        if success:
+            return {"message": "Review deleted successfully"}, 200
+        api.abort(400, result)
+        
+        
+        
+    @jwt_required()
+    def delete(self, review_id):
+        """Delete review"""
+        review = facade.get_review(review_id)
+        if not review:
+            api.abort(404, "Review not found")
+
+        current_user_id = get_jwt_identity()
+        claims = get_jwt()
+        is_admin = claims.get("is_admin", False)
+
+        if review.user_id != current_user_id and not is_admin:
+            api.abort(403, "You can only delete your own review unless you are admin")
 
         success, result = facade.delete_review(review_id)
         if success:

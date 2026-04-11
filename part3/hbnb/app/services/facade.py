@@ -174,6 +174,19 @@ class HBnBFacade:
         except Exception as e:
             db.session.rollback()
             return False, str(e)
+        
+        
+        
+    def delete_amenity(self, amenity_id):
+        try:
+            amenity = self.amenity_repository.get(amenity_id)
+            if not amenity:
+                return False, "Amenity not found"
+
+            self.amenity_repository.delete(amenity_id)
+            return True, None
+        except Exception as e:
+            return False, str(e)
 
     # ================= REVIEWS =================
     def create_review(self, review_data):
@@ -250,3 +263,5 @@ class HBnBFacade:
 
     def get_average_rating_for_place(self, place_id):
         return self.review_repository.get_average_rating_for_place(place_id)
+    
+    
