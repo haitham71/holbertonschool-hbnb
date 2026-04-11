@@ -780,3 +780,28 @@ body.index-page.dark-mode .delete-place-btn {
 body.index-page.dark-mode .delete-place-btn:hover {
     background: rgba(220, 60, 60, 0.92);
 }
+
+body.place-page.dark-mode .place-reviews-block {
+    background: rgba(31, 37, 41, 0.88);
+    border: 1px solid rgba(245, 230, 230, 0.12);
+    box-shadow: 0 10px 24px rgba(0, 0, 0, 0.24);
+}
+
+body.place-page.dark-mode .place-reviews-block h2,
+body.place-page.dark-mode .review-user,
+body.place-page.dark-mode .review-text {
+    color: #f5e6e6;
+}
+
+body.place-page.dark-mode .review-card {
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(245, 230, 230, 0.1);
+}
+
+body.place-page.dark-mode .review-rating {
+    color: #f5b3a6;
+}
+
+body.place-page.dark-mode .no-reviews {
+    color: rgba(245, 230, 230, 0.7);
+}

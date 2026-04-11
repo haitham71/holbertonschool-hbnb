@@ -726,3 +726,71 @@
 .star.active {
     color: #9e5748;
 }	
+
+/* =========================
+   REVIEWS SECTION
+========================= */
+
+.place-reviews-block {
+    margin-top: 22px;
+    background: #e8dadb;
+    border: 1px solid rgba(47, 39, 39, 0.18);
+    border-radius: 24px;
+    padding: 20px 22px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.08);
+}
+
+.place-reviews-block h2 {
+    margin: 0 0 16px 0;
+    font-size: 24px;
+    font-weight: 800;
+    color: #111111;
+}
+
+.place-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.review-card {
+    background: rgba(255, 255, 255, 0.35);
+    border: 1px solid rgba(47, 39, 39, 0.14);
+    border-radius: 18px;
+    padding: 14px 16px;
+}
+
+.review-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+
+.review-user {
+    font-size: 14px;
+    font-weight: 700;
+    color: #2f2727;
+}
+
+.review-rating {
+    font-size: 14px;
+    font-weight: 700;
+    color: #976055;
+}
+
+.review-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.5;
+    color: #2f2727;
+}
+
+.no-reviews {
+    margin: 0;
+    font-size: 15px;
+    color: #7e6f6f;
+    font-weight: 600;
+}

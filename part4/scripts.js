@@ -484,6 +484,18 @@ function displayPlaceDetails(place) {
 		? (place.reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviewCount).toFixed(2)
 		: '0.00';
 
+	const reviewsHtml = place.reviews?.length
+	? place.reviews.map(review => `
+		<div class="review-card">
+			<div class="review-card-header">
+				<div class="review-user">User: ${review.user_id}</div>
+				<div class="review-rating">Rating: ${review.rating}/5</div>
+			</div>
+			<p class="review-text">${review.text}</p>
+		</div>
+	`).join('')
+	: '<p class="no-reviews">No reviews yet.</p>';
+
 	const stars = reviewCount ? '★★★★★' : '☆☆☆☆☆';
 
 	const amenityIcons = {
@@ -573,10 +585,17 @@ function displayPlaceDetails(place) {
 					</div>
 				</div>
 
-				<div class="place-description-block">
-					<h2>Description</h2>
-					<p>${place.description || 'No description available.'}</p>
+			<div class="place-description-block">
+				<h2>Description</h2>
+				<p>${place.description || 'No description available.'}</p>
+			</div>
+
+			<div class="place-reviews-block">
+				<h2>Reviews</h2>
+				<div class="place-reviews-list">
+					${reviewsHtml}
 				</div>
+			</div>
 			</div>
 
 			<aside class="place-sidebar">
