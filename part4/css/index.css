@@ -444,9 +444,7 @@
     margin: 0 0 10px 0;
     font-size: 14px;
 
-	/*just for commit*/
     display: -webkit-box;
-    -webkit-line-clamp: 2;
     -webkit-box-orient: vertical;
     overflow: hidden;
 }
