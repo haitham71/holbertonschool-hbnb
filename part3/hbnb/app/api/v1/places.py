@@ -9,31 +9,40 @@ api = Namespace('places', description='Place operations')
 facade = HBnBFacade()
 
 # Models
-
 place_image_model = api.model('PlaceImage', {
     'id': fields.String(readonly=True),
     'place_id': fields.String,
     'image_url': fields.String(required=True)
 })
 
+amenity_model = api.model('PlaceAmenity', {
+    'id': fields.String(readonly=True),
+    'name': fields.String(required=True)
+})
+
 place_model = api.model('Place', {
     'id': fields.String(readonly=True),
     'title': fields.String(required=True),
+    'short_description': fields.String,
     'description': fields.String,
+    'city': fields.String,
     'price': fields.Float(required=True),
     'latitude': fields.Float(required=True),
     'longitude': fields.Float(required=True),
+    'image_url': fields.String,
     'owner_id': fields.String(required=True),
     'max_guests': fields.Integer(required=True),
     'images': fields.List(fields.Nested(place_image_model)),
-    'amenities': fields.List(fields.String),
+    'amenities': fields.List(fields.Nested(amenity_model)),
     'created_at': fields.DateTime,
     'updated_at': fields.DateTime
 })
 
 place_create_model = api.model('PlaceCreate', {
     'title': fields.String(required=True),
+    'short_description': fields.String,
     'description': fields.String,
+    'city': fields.String,
     'price': fields.Float(required=True),
     'latitude': fields.Float(required=True),
     'longitude': fields.Float(required=True),
@@ -47,10 +56,11 @@ place_image_create_model = api.model('PlaceImageCreate', {
     'image_url': fields.String(required=True)
 })
 
+
 @api.route('/')
 class PlaceList(Resource):
     @jwt_required()
-    @api.expect(place_create_model)
+    @api.expect(place_create_model, validate=True)
     def post(self):
         """Create a new place"""
         data = request.json
@@ -65,6 +75,7 @@ class PlaceList(Resource):
         """Get all places"""
         places = facade.get_all_places()
         return [p.to_dict() for p in places], 200
+
 
 @api.route('/<string:place_id>')
 class PlaceResource(Resource):
@@ -91,6 +102,7 @@ class PlaceResource(Resource):
             return result.to_dict(), 200
         api.abort(400, result)
 
+
 @api.route('/<string:place_id>/reviews')
 class PlaceReviewList(Resource):
     def get(self, place_id):
@@ -99,10 +111,12 @@ class PlaceReviewList(Resource):
         if not place:
             api.abort(404, "Place not found")
         return [r.to_dict() for r in place.reviews], 200
-    
+
+
 @api.route('/<string:place_id>/images')
 class PlaceImageList(Resource):
     def get(self, place_id):
+        """Get all images for a place"""
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, "Place not found")
@@ -111,6 +125,7 @@ class PlaceImageList(Resource):
     @jwt_required()
     @api.expect(place_image_create_model, validate=True)
     def post(self, place_id):
+        """Add image to place"""
         place = facade.get_place(place_id)
         if not place:
             api.abort(404, "Place not found")
@@ -124,11 +139,13 @@ class PlaceImageList(Resource):
         db.session.add(image)
         db.session.commit()
         return image.to_dict(), 201
-    
+
+
 @api.route('/images/<string:image_id>')
 class PlaceImageResource(Resource):
     @jwt_required()
     def delete(self, image_id):
+        """Delete place image"""
         image = PlaceImage.query.get(image_id)
         if not image:
             api.abort(404, "Image not found")

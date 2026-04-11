@@ -2,9 +2,13 @@ from app.models.user import User
 from app.models.amenity import Amenity
 from app.models.place import Place
 from app.models.review import Review
-from app.models.place import Place
 from app.models.place_image import PlaceImage
-from app.services.repositories import UserRepository, PlaceRepository, ReviewRepository, AmenityRepository
+from app.services.repositories import (
+    UserRepository,
+    PlaceRepository,
+    ReviewRepository,
+    AmenityRepository
+)
 from app import db
 
 
@@ -18,7 +22,6 @@ class HBnBFacade:
     # ================= USERS =================
     def create_user(self, user_data):
         try:
-            # Check if email already exists
             if self.get_user_by_email(user_data.get('email')):
                 return False, "Email already registered"
 
@@ -43,7 +46,6 @@ class HBnBFacade:
             if not user:
                 return False, 'User not found'
 
-            # Check if email is being changed and already exists
             if 'email' in user_data:
                 existing = self.get_user_by_email(user_data['email'])
                 if existing and existing.id != user_id:
@@ -58,7 +60,6 @@ class HBnBFacade:
     # ================= AMENITIES =================
     def create_amenity(self, amenity_data):
         try:
-            # Check if amenity name already exists
             if self.get_amenity_by_name(amenity_data.get('name')):
                 return False, "Amenity name already exists"
 
@@ -83,7 +84,6 @@ class HBnBFacade:
             if not amenity:
                 return False, 'Amenity not found'
 
-            # Check if name is being changed and already exists
             if 'name' in amenity_data:
                 existing = self.get_amenity_by_name(amenity_data['name'])
                 if existing and existing.id != amenity_id:
@@ -98,29 +98,39 @@ class HBnBFacade:
     # ================= PLACES =================
     def create_place(self, place_data):
         try:
-            # Extract and validate owner
             owner_id = place_data.get('owner_id')
             owner = self.user_repository.get(owner_id)
             if not owner:
                 return False, "Owner not found"
 
-            # Extract amenity IDs
             amenity_ids = place_data.pop('amenities', [])
+            extra_images = place_data.pop('images', [])
 
-            # Create place
             place_data['owner_id'] = owner.id
             place = Place(**place_data)
 
-            # Add amenities
             for amenity_id in amenity_ids:
                 amenity = self.amenity_repository.get(amenity_id)
                 if not amenity:
                     return False, f"Amenity with id {amenity_id} not found"
                 place.add_amenity(amenity)
 
-            self.place_repository.add(place)
+            db.session.add(place)
+            db.session.flush()
+
+            for image_url in extra_images:
+                if image_url and image_url.strip():
+                    image = PlaceImage(place_id=place.id, image_url=image_url.strip())
+                    db.session.add(image)
+
+            db.session.commit()
             return True, place
+
         except (TypeError, ValueError) as e:
+            db.session.rollback()
+            return False, str(e)
+        except Exception as e:
+            db.session.rollback()
             return False, str(e)
 
     def get_place(self, place_id):
@@ -138,7 +148,6 @@ class HBnBFacade:
             if not place:
                 return False, 'Place not found'
 
-            # Handle owner change
             if 'owner_id' in place_data:
                 new_owner_id = place_data.pop('owner_id')
                 new_owner = self.user_repository.get(new_owner_id)
@@ -146,7 +155,6 @@ class HBnBFacade:
                     return False, "New owner not found"
                 place.owner_id = new_owner_id
 
-            # Handle amenities
             amenity_ids = place_data.pop('amenities', None)
             if amenity_ids is not None:
                 place.amenities = []
@@ -156,26 +164,13 @@ class HBnBFacade:
                         return False, f"Amenity with id {amenity_id} not found"
                     place.add_amenity(amenity)
 
-            # Update other fields
             place.update(place_data)
             db.session.commit()
             return True, place
+
         except (ValueError, TypeError) as e:
+            db.session.rollback()
             return False, str(e)
-
-    def create_place(self, place_data):
-        try:
-            extra_images = place_data.pop("images", [])
-            place = Place(**place_data)
-            self.place_repository.add(place)
-
-            for image_url in extra_images:
-                image = PlaceImage(place_id=place.id, image_url=image_url)
-                db.session.add(image)
-
-            db.session.commit()
-            return True, place
-
         except Exception as e:
             db.session.rollback()
             return False, str(e)
@@ -194,13 +189,10 @@ class HBnBFacade:
             if not place:
                 return False, "Place not found"
 
-            # Check if user is reviewing their own place
             if place.owner_id == user.id:
                 return False, "You cannot review your own place"
 
-            # Check if user already reviewed this place
-            existing_reviews = self.review_repository.get_reviews_by_place(
-                place_id)
+            existing_reviews = self.review_repository.get_reviews_by_place(place_id)
             for review in existing_reviews:
                 if review.user_id == user.id:
                     return False, "You have already reviewed this place"
@@ -232,7 +224,6 @@ class HBnBFacade:
             if not review:
                 return False, 'Review not found'
 
-            # Don't allow changing user or place
             review_data.pop('user_id', None)
             review_data.pop('place_id', None)
 
@@ -240,6 +231,10 @@ class HBnBFacade:
             db.session.commit()
             return True, review
         except (ValueError, TypeError) as e:
+            db.session.rollback()
+            return False, str(e)
+        except Exception as e:
+            db.session.rollback()
             return False, str(e)
 
     def delete_review(self, review_id):
@@ -254,5 +249,4 @@ class HBnBFacade:
             return False, str(e)
 
     def get_average_rating_for_place(self, place_id):
-        """Helper method to get average rating"""
         return self.review_repository.get_average_rating_for_place(place_id)

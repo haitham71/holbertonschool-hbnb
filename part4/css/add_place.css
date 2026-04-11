@@ -16,12 +16,16 @@
 .add-place-main {
     position: relative;
     z-index: 10;
-    width: calc(100% - 70px);
-    max-width: 1380px;
-    margin: -8px auto 40px;
+    flex: 1;
+    width: 100%;
+    margin-top: -22px;
+    overflow: visible;
 }
 
 .add-place-layout {
+    width: calc(100% - 34px);
+    max-width: 1380px;
+    margin: 200px auto 30px;
     display: grid;
     grid-template-columns: minmax(0, 1fr) 400px;
     gap: 34px;
@@ -38,10 +42,11 @@
 .preview-gallery-card,
 .image-links-card,
 .amenities-card {
-    background: transparent;
-    border: 2px solid rgba(54, 45, 45, 0.72);
+    background: #e8dadb;
+    border: 1px solid #ddd;
     border-radius: 24px;
     padding: 20px 22px;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.16);
 }
 
 .add-place-card h1 {
@@ -68,11 +73,12 @@
 .add-place-form textarea,
 .image-link-row input {
     width: 100%;
-    border: 1.5px solid rgba(79, 68, 68, 0.45);
-    background: #d9d9d9;
+    border: 1.5px solid rgba(79, 68, 68, 0.85);
+    background: rgba(255, 255, 255, 0.18);
     color: #444;
     outline: none;
     box-sizing: border-box;
+    transition: background 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .add-place-form input,
@@ -87,6 +93,22 @@
     border-radius: 20px;
     padding: 14px;
     resize: vertical;
+}
+
+/* الشفافية عند الضغط */
+.add-place-form input:focus,
+.add-place-form textarea:focus,
+.image-link-row input:focus {
+    background: transparent;
+    border-color: rgba(79, 68, 68, 0.95);
+    box-shadow: 0 0 0 3px rgba(158, 87, 72, 0.08);
+}
+
+.add-place-form input::placeholder,
+.add-place-form textarea::placeholder,
+.image-link-row input::placeholder {
+    color: #8a7b7b;
+    font-weight: 600;
 }
 
 .full-desc-price-row {
@@ -206,3 +228,132 @@
     height: 18px;
     accent-color: #9e5748;
 }
+
+/* =========================
+   BUTTON STYLE
+========================= */
+
+.details-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: auto;
+    height: auto;
+    padding: 6px 0;
+    border: none !important;
+    border-radius: 0;
+    background: none !important;
+    background-color: transparent !important;
+    box-shadow: none !important;
+    color: #976055;
+    font-size: 14px;
+    font-weight: 700;
+    text-decoration: none;
+    position: relative;
+    cursor: pointer;
+    transition: color 0.25s ease;
+}
+
+.details-button::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: #9e5748;
+    transition: width 0.3s ease;
+}
+
+.details-button:hover {
+    color: #4e3939;
+    transform: none;
+}
+
+.details-button:hover::after {
+    width: 100%;
+}
+
+/* =========================
+   HEADER FIX LIKE INDEX
+========================= */
+
+.add-place-page .site-header {
+    position: relative;
+    width: 100%;
+}
+
+.add-place-page .site-logo {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    margin: 0;
+}
+
+.top-nav {
+    position: relative;
+    z-index: 19;
+    margin-top: -8px;
+    left: 0;
+    width: fit-content;
+    padding: 12px 34px 12px 34px;
+    border-top-right-radius: 18px;
+    border-bottom-right-radius: 18px;
+}
+
+.theme-toggle {
+    position: absolute;
+    top: 18px;
+    right: 24px;
+}
+
+.preview-gallery-item {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 18px;
+    background: #d9d9d9;
+}
+
+.preview-gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.remove-preview-btn {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(20, 20, 20, 0.72);
+    color: #ffffff;
+    font-size: 18px;
+    font-weight: 700;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transform: scale(0.9);
+    transition: opacity 0.2s ease, transform 0.2s ease, background 0.2s ease;
+    z-index: 2;
+}
+
+.preview-gallery-item:hover .remove-preview-btn,
+.preview-gallery-item:active .remove-preview-btn,
+.preview-gallery-item:focus-within .remove-preview-btn {
+    opacity: 1;
+    transform: scale(1);
+}
+
+.remove-preview-btn:hover {
+    background: rgba(120, 20, 20, 0.9);
+}
+

@@ -11,10 +11,12 @@ class Place(BaseModel):
 
     # Columns
     title = Column(String(100), nullable=False)
+    short_description = Column(String(255), nullable=True)
     description = Column(Text, nullable=True)
+    city = Column(String(100), nullable=True)
     price = Column(Float, nullable=False)
-    latitude = Column(Float, nullable=False)
-    longitude = Column(Float, nullable=False)
+    latitude = Column(Float, nullable=False, default=0.0)
+    longitude = Column(Float, nullable=False, default=0.0)
     image_url = Column(String(500), nullable=True)
     max_guests = Column(Integer, nullable=False, default=1)
 
@@ -23,16 +25,26 @@ class Place(BaseModel):
     owner = relationship('User', back_populates='places', lazy=True)
 
     # Relationships
-    amenities = relationship('Amenity', secondary='place_amenity', lazy='subquery',
-                             backref=db.backref('places', lazy=True))
-    reviews = relationship('Review', back_populates='place',
-                           lazy=True, cascade='all, delete-orphan')
-    
+    amenities = relationship(
+        'Amenity',
+        secondary='place_amenity',
+        lazy='subquery',
+        backref=db.backref('places', lazy=True)
+    )
+
+    reviews = relationship(
+        'Review',
+        back_populates='place',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
+
     images = relationship(
-    'PlaceImage',
-    back_populates='place',
-    lazy=True,
-    cascade='all, delete-orphan')
+        'PlaceImage',
+        back_populates='place',
+        lazy=True,
+        cascade='all, delete-orphan'
+    )
 
     def __init__(self, **kwargs):
         """Initialize place"""
@@ -46,11 +58,46 @@ class Place(BaseModel):
         """Validate title"""
         if not isinstance(title, str):
             raise TypeError("Title must be a string")
-        if len(title) > 100:
-            raise ValueError("Title must be 100 characters max.")
         if len(title.strip()) == 0:
             raise ValueError("Title cannot be empty")
+        if len(title) > 100:
+            raise ValueError("Title must be 100 characters max.")
         return title.strip()
+
+    @validates('short_description')
+    def validate_short_description(self, key, value):
+        """Validate short description"""
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise TypeError("short_description must be a string")
+        if len(value.strip()) == 0:
+            return None
+        if len(value) > 255:
+            raise ValueError("short_description must be 255 characters max.")
+        return value.strip()
+
+    @validates('description')
+    def validate_description(self, key, value):
+        """Validate full description"""
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise TypeError("description must be a string")
+        return value.strip()
+
+    @validates('city')
+    def validate_city(self, key, value):
+        """Validate city"""
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise TypeError("city must be a string")
+        if len(value.strip()) == 0:
+            return None
+        if len(value) > 100:
+            raise ValueError("city must be 100 characters max.")
+        return value.strip()
 
     @validates('price')
     def validate_price(self, key, price):
@@ -79,8 +126,22 @@ class Place(BaseModel):
             raise ValueError("Longitude must be between -180 and 180")
         return float(lon)
 
+    @validates('image_url')
+    def validate_image_url(self, key, value):
+        """Validate image url"""
+        if value is None:
+            return value
+        if not isinstance(value, str):
+            raise TypeError("image_url must be a string")
+        if len(value.strip()) == 0:
+            return None
+        if len(value) > 500:
+            raise ValueError("image_url must be 500 characters max.")
+        return value.strip()
+
     @validates('max_guests')
     def validate_max_guests(self, key, value):
+        """Validate max guests"""
         if not isinstance(value, int):
             raise TypeError("max_guests must be an integer")
         if value <= 0:
@@ -112,7 +173,9 @@ class Place(BaseModel):
         return {
             "id": self.id,
             "title": self.title,
+            "short_description": self.short_description,
             "description": self.description,
+            "city": self.city,
             "price": self.price,
             "latitude": self.latitude,
             "longitude": self.longitude,

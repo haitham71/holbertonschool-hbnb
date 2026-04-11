@@ -1,43 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
-	setupLoginForm();
-	updateAuthNavLink();
-	checkAuthenticationAndLoadPlaces();
-	checkAuthenticationAndLoadPlaceDetails();
-	setupReviewForm();
-	setupIndexHeroSlider();
-	setupDatePicker();
-	setupGuestsPicker();
-	setupSearchButton();
-	setupLoginBackgroundSlider();
-	setupThemeToggle();
-	setupPasswordToggle();
-	setupGalleryLightbox();/**/
-	setupPlaceBookingCalculator();/**/
-	setupPlaceBookingDatePicker();
-	setupInlineReviewForm();
-	loadAmenities();
-	loadAmenitiesForAddPlace();
-    setupAddPlaceImageInputs();
-    setupAddPlaceForm();
-});
-
-/* 
-    
-    
-    
-    
-    
-    
-    setupGuestsPicker();
-    setupSearchButton();
-    setupLoginBackgroundSlider();
-    setupThemeToggle();
-    setupPasswordToggle();
-
-    loadAmenitiesForAddPlace();
-    setupAddPlaceImageInputs();
-    setupAddPlaceForm();
-	*/
+const API_BASE_URL = 'http://127.0.0.1:5000/api/v1';
 
 let allPlaces = [];
 let selectedGuests = 0;
@@ -47,6 +8,76 @@ let selectedDateRange = {
 };
 let addPlaceMainImage = '';
 let addPlaceOtherImages = [];
+
+document.addEventListener('DOMContentLoaded', () => {
+	setupLoginForm();
+	updateAuthNavLink();
+
+	checkAuthenticationAndLoadPlaces();
+	checkAuthenticationAndLoadPlaceDetails();
+
+	setupReviewForm();
+	setupInlineReviewForm();
+
+	setupIndexHeroSlider();
+	setupDatePicker();
+	setupGuestsPicker();
+	setupSearchButton();
+	setupLoginBackgroundSlider();
+	setupThemeToggle();
+	setupPasswordToggle();
+	setupGalleryLightbox();
+	setupPlaceBookingDatePicker();
+
+	loadAmenities();
+	loadAmenitiesForAddPlace();
+
+	setupAddPlaceImageInputs();
+	setupAddPlaceForm();
+});
+
+/* =========================
+   Helpers
+========================= */
+function getToken() {
+	return localStorage.getItem('token');
+}
+
+function clearToken() {
+	localStorage.removeItem('token');
+}
+
+async function safeJson(response) {
+	try {
+		return await response.json();
+	} catch {
+		return null;
+	}
+}
+
+/* =========================
+   Auth Nav Link
+========================= */
+function updateAuthNavLink() {
+	const token = getToken();
+	const loginLink = document.getElementById('login-link');
+
+	if (!loginLink) return;
+
+	if (token) {
+		loginLink.textContent = 'Sign Out';
+		loginLink.href = '#';
+		loginLink.onclick = function (e) {
+			e.preventDefault();
+			clearToken();
+			window.location.href = 'login.html';
+		};
+	} else {
+		loginLink.textContent = 'Login';
+		loginLink.href = 'login.html';
+		loginLink.onclick = null;
+	}
+}
 
 /* =========================
    Login Page
@@ -60,26 +91,26 @@ function setupLoginForm() {
 	loginForm.addEventListener('submit', async (event) => {
 		event.preventDefault();
 
-		const email = document.getElementById('email').value.trim();
-		const password = document.getElementById('password').value.trim();
+		const email = document.getElementById('email')?.value.trim();
+		const password = document.getElementById('password')?.value.trim();
 
 		if (errorMessage) errorMessage.textContent = '';
 
 		try {
-			const response = await fetch('http://127.0.0.1:5000/api/v1/users/login', {
+			const response = await fetch(`${API_BASE_URL}/users/login`, {
 				method: 'POST',
 				headers: { 'Content-Type': 'application/json' },
 				body: JSON.stringify({ email, password })
 			});
 
-			const data = await response.json();
+			const data = await safeJson(response);
 
-			if (response.ok) {
-				document.cookie = `token=${data.access_token}; path=/`;
+			if (response.ok && data?.access_token) {
+				localStorage.setItem('token', data.access_token);
 				window.location.href = 'index.html';
 			} else {
 				if (errorMessage) {
-					errorMessage.textContent = data.message || data.error || 'Login failed.';
+					errorMessage.textContent = data?.message || data?.error || 'Login failed.';
 				}
 			}
 		} catch {
@@ -91,57 +122,13 @@ function setupLoginForm() {
 }
 
 /* =========================
-   Cookies
-========================= */
-function getCookie(name) {
-	const cookies = document.cookie.split(';');
-
-	for (let cookie of cookies) {
-		cookie = cookie.trim();
-		if (cookie.startsWith(name + '=')) {
-			return cookie.substring(name.length + 1);
-		}
-	}
-
-	return null;
-}
-
-function clearCookie(name) {
-	document.cookie = `${name}=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT`;
-}
-
-/* =========================
-   Auth Nav Link
-========================= */
-function updateAuthNavLink() {
-	const token = getCookie('token');
-	const loginLink = document.getElementById('login-link');
-
-	if (!loginLink) return;
-
-	if (token) {
-		loginLink.textContent = 'Sign Out';
-		loginLink.href = '#';
-		loginLink.onclick = function (e) {
-			e.preventDefault();
-			clearCookie('token');
-			window.location.href = 'login.html';
-		};
-	} else {
-		loginLink.textContent = 'Login';
-		loginLink.href = 'login.html';
-		loginLink.onclick = null;
-	}
-}
-
-/* =========================
    INDEX PAGE
 ========================= */
 function checkAuthenticationAndLoadPlaces() {
 	const placesList = document.getElementById('places-list');
 	if (!placesList) return;
 
-	const token = getCookie('token');
+	const token = getToken();
 
 	updateAuthNavLink();
 	fetchPlaces(token);
@@ -151,17 +138,17 @@ function checkAuthenticationAndLoadPlaces() {
 async function fetchPlaces(token) {
 	try {
 		const headers = {};
-		if (token) headers['Authorization'] = `Bearer ${token}`;
+		if (token) headers.Authorization = `Bearer ${token}`;
 
-		const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
+		const response = await fetch(`${API_BASE_URL}/places/`, {
 			method: 'GET',
 			headers
 		});
 
 		if (!response.ok) throw new Error();
 
-		const data = await response.json();
-		allPlaces = data;
+		const data = await safeJson(response);
+		allPlaces = Array.isArray(data) ? data : [];
 		displayPlaces(allPlaces);
 	} catch {
 		const placesList = document.getElementById('places-list');
@@ -175,57 +162,70 @@ function displayPlaces(places) {
 	const container = document.getElementById('places-list');
 	if (!container) return;
 
+	const amenityIcons = {
+		wifi: 'icons/wi-fi-icon.png',
+		gym: 'icons/weight.png',
+		balcony: 'icons/balcony.png',
+		valet: 'icons/keys.png',
+		parking: 'icons/parking.png',
+		pool: 'icons/swimming.png'
+	};
+
 	container.innerHTML = '';
 
 	places.forEach(place => {
 		const card = document.createElement('div');
 		card.className = 'place-card';
 
+		const amenitiesHtml = Array.isArray(place.amenities)
+			? place.amenities
+				.filter(amenity => {
+					const amenityName = (amenity.name || '').trim().toLowerCase();
+					return amenityIcons[amenityName];
+				})
+				.map(amenity => {
+					const amenityName = amenity.name || 'Amenity';
+					const icon = amenityIcons[amenityName.trim().toLowerCase()];
+
+					return `
+						<div class="feature-item">
+							<img src="${icon}" alt="${amenityName}">
+							<span>${amenityName}</span>
+						</div>
+					`;
+				})
+				.join('')
+			: '';
+
 		card.innerHTML = `
-            ${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-image">` : ''}
+			${place.image_url ? `<img src="${place.image_url}" alt="${place.title}" class="place-image">` : ''}
 
-            <div class="place-card-content">
-                <h2>${place.title}</h2>
+			<div class="place-card-content">
+				<h2>${place.title}</h2>
 
-                <p class="place-location">
-                    ${place.description || 'No description available'}
-                </p>
+				<p class="place-location">
+					${place.short_description || 'No description available'}
+				</p>
 
-                <div class="place-features">
-
-                    <div class="feature-item">
-                        <img src="icons/wi-fi-icon.png" alt="WiFi">
-                        <span>WIFI</span>
-                    </div>
-                    <div class="feature-item">
-                        <img src="icons/balcony.png" alt="Balcony">
-                        <span>Balcony</span>
-                    </div>
-                    <div class="feature-item">
-                        <img src="icons/weight.png" alt="Gym">
-                        <span>GYM</span>
-                    </div>
-                    <div class="feature-item">
-                        <img src="icons/keys.png" alt="Valet">
-                        <span>Valet</span>
-                    </div>
-                </div>
+				<div class="place-features">
+					${amenitiesHtml || '<p class="no-amenities">No supported amenities</p>'}
+				</div>
 
 				<div class="place-card-footer">
 					<div class="place-price-block">
 						<p class="place-price">$${place.price}</p>
-                    <div class="guests-trigger">
-						<img src="icons/Guests-icon.png" alt="Guests">
-						<p class="place-guests-max">Up to ${place.max_guests} guests</p>
-					</div>
+						<div class="guests-trigger">
+							<img src="icons/Guests-icon.png" alt="Guests">
+							<p class="place-guests-max">Up to ${place.max_guests} guests</p>
+						</div>
 					</div>
 
 					<a href="place.html?id=${place.id}" class="details-button">
 						View Details
 					</a>
 				</div>
-            </div>
-        `;
+			</div>
+		`;
 
 		container.appendChild(card);
 	});
@@ -310,14 +310,14 @@ function checkAuthenticationAndLoadPlaceDetails() {
 	const section = document.getElementById('place-details');
 	if (!section) return;
 
-	const token = getCookie('token');
+	const token = getToken();
 	const addReviewSection = document.getElementById('add-review');
 	const placeId = getPlaceIdFromURL();
 
 	updateAuthNavLink();
 
 	if (addReviewSection) {
-		addReviewSection.style.display = token ? 'block' : 'none';
+		addReviewSection.style.display = token ? 'block' : 'block';
 	}
 
 	if (!placeId) {
@@ -336,16 +336,13 @@ function getPlaceIdFromURL() {
 async function fetchPlaceDetails(token, placeId) {
 	try {
 		const headers = {};
-		if (token) headers['Authorization'] = `Bearer ${token}`;
+		if (token) headers.Authorization = `Bearer ${token}`;
 
-		const response = await fetch(
-			`http://127.0.0.1:5000/api/v1/places/${placeId}`,
-			{ headers }
-		);
+		const response = await fetch(`${API_BASE_URL}/places/${placeId}`, { headers });
 
 		if (!response.ok) throw new Error();
 
-		const place = await response.json();
+		const place = await safeJson(response);
 		displayPlaceDetails(place);
 	} catch {
 		const placeDetails = document.getElementById('place-details');
@@ -359,15 +356,14 @@ function displayPlaceDetails(place) {
 	const section = document.getElementById('place-details');
 	const addReview = document.getElementById('add-review');
 
-	if (!section) return;
+	if (!section || !place) return;
 
 	const galleryImages = [
 		...(place.image_url ? [place.image_url] : []),
-		...((place.images || []).map(img => img.image_url).filter(Boolean))
+		...((place.images || []).map(img => img.image_url || img).filter(Boolean))
 	];
 
 	const visibleImages = galleryImages.slice(0, 5);
-
 	const mainImage = visibleImages[0] || '';
 	const sideImages = visibleImages.slice(1, 5);
 
@@ -376,31 +372,35 @@ function displayPlaceDetails(place) {
 		? (place.reviews.reduce((sum, r) => sum + Number(r.rating || 0), 0) / reviewCount).toFixed(2)
 		: '0.00';
 
-	const stars = reviewCount
-		? '★★★★★'
-		: '☆☆☆☆☆';
+	const stars = reviewCount ? '★★★★★' : '☆☆☆☆☆';
 
 	const amenityIcons = {
 		wifi: 'icons/wi-fi-icon.png',
 		gym: 'icons/weight.png',
 		balcony: 'icons/balcony.png',
 		valet: 'icons/keys.png',
-		parking: 'icons/keys.png'
+		parking: 'icons/parking.png',
+		pool: 'icons/swimming.png'
 	};
 
-	const amenitiesHtml = place.amenities?.length
-		? place.amenities.map(amenity => {
+const amenitiesHtml = place.amenities?.length
+	? place.amenities
+		.filter(amenity => {
+			const amenityName = (amenity.name || '').trim().toLowerCase();
+			return amenityIcons[amenityName];
+		})
+		.map(amenity => {
 			const amenityName = amenity.name || 'Amenity';
-			const icon = amenityIcons[amenityName.toLowerCase()] || 'icons/rating.png';
+			const icon = amenityIcons[amenityName.trim().toLowerCase()];
 
 			return `
-                <div class="place-amenity">
-                    <img src="${icon}" alt="${amenityName}">
-                    <span>${amenityName}</span>
-                </div>
-            `;
+				<div class="place-amenity">
+					<img src="${icon}" alt="${amenityName}">
+					<span>${amenityName}</span>
+				</div>
+			`;
 		}).join('')
-		: '<p>No amenities available.</p>';
+		: '<p>No supported amenities available.</p>';
 
 	const sideImagesHtml = sideImages.map((img, index) => {
 		const actualIndex = index + 1;
@@ -408,77 +408,77 @@ function displayPlaceDetails(place) {
 		const remaining = galleryImages.length - 5;
 
 		return `
-            <div class="gallery-thumb-box">
-                <img
-                    src="${img}"
-                    alt="${place.title} image ${actualIndex + 1}"
-                    class="gallery-thumb"
-                    data-gallery-index="${actualIndex}"
-                >
-                ${isLastVisible && remaining > 0 ? `
-                    <div class="gallery-more-overlay" data-gallery-index="${actualIndex}">
-                        +${remaining}
-                    </div>
-                ` : ''}
-            </div>
-        `;
+			<div class="gallery-thumb-box">
+				<img
+					src="${img}"
+					alt="${place.title} image ${actualIndex + 1}"
+					class="gallery-thumb"
+					data-gallery-index="${actualIndex}"
+				>
+				${isLastVisible && remaining > 0 ? `
+					<div class="gallery-more-overlay" data-gallery-index="${actualIndex}">
+						+${remaining}
+					</div>
+				` : ''}
+			</div>
+		`;
 	}).join('');
 
 	section.innerHTML = `
-        <div class="place-top-bar">
-            <div class="place-top-title">
-                <h1>${place.title}</h1>
-                <p class="place-subtitle">${place.description || 'No description available'}</p>
-            </div>
+		<div class="place-top-bar">
+			<div class="place-top-title">
+				<h1>${place.title}</h1>
+				<p class="place-subtitle">${place.short_description || 'No description available'}</p>
+			</div>
 
-            <div class="place-top-location">
-                <strong>City</strong>
-                <span>Dubai</span>
-            </div>
+			<div class="place-top-location">
+				<strong>City</strong>
+				<span>${place.city || 'Unknown'}</span>
+			</div>
 
-            <div class="place-top-price">
-                <span class="amount">$${place.price}</span>
-                <span class="per-night">For per night</span>
-            </div>
-        </div>
+			<div class="place-top-price">
+				<span class="amount">$${place.price}</span>
+				<span class="per-night">For per night</span>
+			</div>
+		</div>
 
-        <div class="place-content-grid">
-            <div class="place-left-column">
-                <div class="place-gallery">
-                    <div class="gallery-main">
-                        ${mainImage ? `
-                            <img
-                                src="${mainImage}"
-                                alt="${place.title}"
-                                class="gallery-main-image"
-                                data-gallery-index="0"
-                            >
-                        ` : ''}
-                    </div>
+		<div class="place-content-grid">
+			<div class="place-left-column">
+				<div class="place-gallery">
+					<div class="gallery-main">
+						${mainImage ? `
+							<img
+								src="${mainImage}"
+								alt="${place.title}"
+								class="gallery-main-image"
+								data-gallery-index="0"
+							>
+						` : ''}
+					</div>
 
-                    <div class="gallery-side-grid">
-                        ${sideImagesHtml}
-                    </div>
-                </div>
+					<div class="gallery-side-grid">
+						${sideImagesHtml}
+					</div>
+				</div>
 
-                <div class="place-description-block">
-                    <h2>Description</h2>
-                    <p>${place.description || 'No description available.'}</p>
-                </div>
-            </div>
+				<div class="place-description-block">
+					<h2>Description</h2>
+					<p>${place.description || 'No description available.'}</p>
+				</div>
+			</div>
 
-            <aside class="place-sidebar">
-                <div class="sidebar-card rating-card">
-                    <div class="rating-split">
-                        <span class="review-count-number">${reviewCount}</span>
-                        <span class="review-count-label">Reviews</span>
-                    </div>
+			<aside class="place-sidebar">
+				<div class="sidebar-card rating-card">
+					<div class="rating-split">
+						<span class="review-count-number">${reviewCount}</span>
+						<span class="review-count-label">Reviews</span>
+					</div>
 
-                    <div>
-                        <span class="rating-value">${avgRating}</span>
-                        <div class="rating-stars">${stars}</div>
-                    </div>
-                </div>
+					<div>
+						<span class="rating-value">${avgRating}</span>
+						<div class="rating-stars">${stars}</div>
+					</div>
+				</div>
 
 				<div class="sidebar-card booking-card">
 					<div class="booking-date-dropdown-wrapper" id="booking-date-dropdown-wrapper">
@@ -522,65 +522,66 @@ function displayPlaceDetails(place) {
 					<button type="button" class="book-now-btn">Book Now</button>
 				</div>
 
-                <div class="sidebar-card amenities-card">
-                    ${amenitiesHtml}
-                </div>
-            </aside>
-        </div>
-    `;
+				<div class="sidebar-card amenities-card">
+					${amenitiesHtml}
+				</div>
+			</aside>
+		</div>
+	`;
 
 	if (addReview) {
-		const token = getCookie('token');
+		const token = getToken();
 
 		if (token) {
 			addReview.innerHTML = `
-            <div class="inline-review-card">
-                <h3>Add a Review</h3>
+				<div class="inline-review-card">
+					<h3>Add a Review</h3>
 
-                <form id="inline-review-form" class="inline-review-form">
-                    <label>Rating</label>
-					<div class="star-rating" id="star-rating">
-						<input type="hidden" id="inline-review-rating" required>
+					<form id="inline-review-form" class="inline-review-form">
+						<label>Rating</label>
+						<div class="star-rating" id="star-rating">
+							<input type="hidden" id="inline-review-rating" required>
 
-						<span class="star" data-value="1">★</span>
-						<span class="star" data-value="2">★</span>
-						<span class="star" data-value="3">★</span>
-						<span class="star" data-value="4">★</span>
-						<span class="star" data-value="5">★</span>
-					</div>
-                    <label for="inline-review-text">Your review</label>
-                    <textarea
-                        id="inline-review-text"
-                        rows="4"
-                        placeholder="Write your review here..."
-                        required
-                    ></textarea>
+							<span class="star" data-value="1">★</span>
+							<span class="star" data-value="2">★</span>
+							<span class="star" data-value="3">★</span>
+							<span class="star" data-value="4">★</span>
+							<span class="star" data-value="5">★</span>
+						</div>
 
-                    <div class="inline-review-actions">
-                        <button type="submit" class="dropdown-apply-btn">Submit Review</button>
-                    </div>
+						<label for="inline-review-text">Your review</label>
+						<textarea
+							id="inline-review-text"
+							rows="4"
+							placeholder="Write your review here..."
+							required
+						></textarea>
 
-                    <p id="inline-review-message" class="inline-review-message"></p>
-                </form>
-            </div>
-        `;
+						<div class="inline-review-actions">
+							<button type="submit" class="dropdown-apply-btn">Submit Review</button>
+						</div>
+
+						<p id="inline-review-message" class="inline-review-message"></p>
+					</form>
+				</div>
+			`;
 
 			setupInlineReviewForm(place.id);
 		} else {
 			addReview.innerHTML = `
-            <div class="inline-review-card">
-                <p class="inline-review-login-note">
-                    <a href="login.html" class="details-button">Login</a> to add a review.
-                </p>
-            </div>
-        `;
+				<div class="inline-review-card">
+					<p class="inline-review-login-note">
+						<a href="login.html" class="details-button">Login</a> to add a review.
+					</p>
+				</div>
+			`;
 		}
 	}
 
 	setupGalleryLightbox(galleryImages);
 	setupPlaceBookingDatePicker(place.price);
-
 }
+
 /* =========================
    ADD REVIEW PAGE
 ========================= */
@@ -588,7 +589,7 @@ function setupReviewForm() {
 	const form = document.getElementById('review-form');
 	if (!form) return;
 
-	const token = getCookie('token');
+	const token = getToken();
 	const placeId = getPlaceIdFromURL();
 	const msg = document.getElementById('review-message');
 
@@ -600,17 +601,17 @@ function setupReviewForm() {
 	form.addEventListener('submit', async (e) => {
 		e.preventDefault();
 
-		const text = document.getElementById('review-text').value.trim();
-		const rating = Number(document.getElementById('rating').value);
+		const text = document.getElementById('review-text')?.value.trim();
+		const rating = Number(document.getElementById('rating')?.value);
 
 		if (msg) msg.textContent = '';
 
 		try {
-			const res = await fetch('http://127.0.0.1:5000/api/v1/reviews/', {
+			const res = await fetch(`${API_BASE_URL}/reviews/`, {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json',
-					'Authorization': `Bearer ${token}`
+					Authorization: `Bearer ${token}`
 				},
 				body: JSON.stringify({
 					text,
@@ -719,18 +720,9 @@ function setupIndexHeroSlider() {
 	if (!slides.length || !title) return;
 
 	const heroData = [
-		{
-			image: 'BG-IMGS/Los-angles.png',
-			title: 'LOS ANGLES'
-		},
-		{
-			image: 'BG-IMGS/Riyadh.jpg',
-			title: 'RIYADH'
-		},
-		{
-			image: 'BG-IMGS/Dubai.jpg',
-			title: 'DUBAI'
-		},
+		{ image: 'BG-IMGS/Los-angles.png', title: 'LOS ANGLES' },
+		{ image: 'BG-IMGS/Riyadh.jpg', title: 'RIYADH' },
+		{ image: 'BG-IMGS/Dubai.jpg', title: 'DUBAI' }
 	];
 
 	slides.forEach((slide, index) => {
@@ -754,7 +746,6 @@ function setupIndexHeroSlider() {
 		nextSlide.classList.add('active');
 
 		title.textContent = nextData.title;
-
 		currentIndex = nextIndex;
 	}, 5000);
 }
@@ -781,35 +772,6 @@ function setupDatePicker() {
 		locale: flatpickr.l10ns.default,
 		onReady: function (_, __, instance) {
 			instance.calendarContainer.setAttribute('lang', 'en');
-
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
-		},
-		onOpen: function (_, __, instance) {
-			instance.calendarContainer.setAttribute('lang', 'en');
-
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
-		},
-		onMonthChange: function (_, __, instance) {
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
-		},
-		onYearChange: function (_, __, instance) {
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
 		},
 		onChange: function (dates) {
 			selectedDates = dates;
@@ -935,28 +897,28 @@ function setupSearchButton() {
 	searchBtn.addEventListener('click', () => {
 		let filtered = [...allPlaces];
 
-		const locationValue = locationInput
-			? locationInput.value.trim().toLowerCase()
-			: '';
+		const locationValue = locationInput ? locationInput.value.trim().toLowerCase() : '';
 
 		if (locationValue) {
 			filtered = filtered.filter(place =>
 				(place.title && place.title.toLowerCase().includes(locationValue)) ||
-				(place.description && place.description.toLowerCase().includes(locationValue))
+				(place.description && place.description.toLowerCase().includes(locationValue)) ||
+				(place.city && place.city.toLowerCase().includes(locationValue))
 			);
 		}
 
 		if (selectedGuests > 0) {
-			filtered = filtered.filter(place =>
-				Number(place.max_guests) >= selectedGuests
-			);
+			filtered = filtered.filter(place => Number(place.max_guests) >= selectedGuests);
 		}
 
 		displayPlaces(filtered);
 	});
 }
 
-function setupGalleryLightbox(images) {
+/* =========================
+   Gallery Lightbox
+========================= */
+function setupGalleryLightbox(images = []) {
 	const lightbox = document.getElementById('gallery-lightbox');
 	const lightboxImage = document.getElementById('lightbox-image');
 	const closeBtn = document.getElementById('lightbox-close');
@@ -1001,9 +963,7 @@ function setupGalleryLightbox(images) {
 	nextBtn.onclick = showNext;
 
 	lightbox.onclick = (e) => {
-		if (e.target === lightbox) {
-			closeLightbox();
-		}
+		if (e.target === lightbox) closeLightbox();
 	};
 
 	document.addEventListener('keydown', (e) => {
@@ -1015,60 +975,9 @@ function setupGalleryLightbox(images) {
 	});
 }
 
-function setupPlaceBookingCalculator(pricePerNight) {
-	const checkinInput = document.getElementById('booking-checkin');
-	const checkoutInput = document.getElementById('booking-checkout');
-	const nightsEl = document.getElementById('booking-nights');
-	const totalEl = document.getElementById('booking-total-price');
-
-	if (!checkinInput || !checkoutInput || !nightsEl || !totalEl) return;
-
-	const today = new Date().toISOString().split('T')[0];
-	checkinInput.min = today;
-	checkoutInput.min = today;
-
-	function calculateBookingTotal() {
-		const checkin = checkinInput.value;
-		const checkout = checkoutInput.value;
-
-		if (!checkin) {
-			nightsEl.textContent = '0';
-			totalEl.textContent = `$${pricePerNight}`;
-			return;
-		}
-
-		checkoutInput.min = checkin;
-
-		if (!checkout) {
-			nightsEl.textContent = '0';
-			totalEl.textContent = `$${pricePerNight}`;
-			return;
-		}
-
-		const checkinDate = new Date(checkin);
-		const checkoutDate = new Date(checkout);
-
-		const diffMs = checkoutDate - checkinDate;
-		const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-
-		if (diffDays <= 0 || Number.isNaN(diffDays)) {
-			nightsEl.textContent = '0';
-			totalEl.textContent = 'Invalid dates';
-			return;
-		}
-
-		const total = diffDays * Number(pricePerNight);
-
-		nightsEl.textContent = diffDays;
-		totalEl.textContent = `$${total}`;
-	}
-
-	checkinInput.addEventListener('change', calculateBookingTotal);
-	checkoutInput.addEventListener('change', calculateBookingTotal);
-
-	calculateBookingTotal();
-}
-
+/* =========================
+   Booking Date Picker
+========================= */
 function setupPlaceBookingDatePicker(pricePerNight) {
 	const wrapper = document.getElementById('booking-date-dropdown-wrapper');
 	const trigger = document.getElementById('booking-date-trigger');
@@ -1093,35 +1002,6 @@ function setupPlaceBookingDatePicker(pricePerNight) {
 		locale: flatpickr.l10ns.default,
 		onReady: function (_, __, instance) {
 			instance.calendarContainer.setAttribute('lang', 'en');
-
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
-		},
-		onOpen: function (_, __, instance) {
-			instance.calendarContainer.setAttribute('lang', 'en');
-
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
-		},
-		onMonthChange: function (_, __, instance) {
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
-		},
-		onYearChange: function (_, __, instance) {
-			const yearInput = instance.calendarContainer.querySelector('.numInput.cur-year');
-			if (yearInput) {
-				yearInput.setAttribute('lang', 'en');
-				yearInput.style.direction = 'ltr';
-			}
 		},
 		onChange: function (dates) {
 			selectedDates = dates;
@@ -1131,7 +1011,7 @@ function setupPlaceBookingDatePicker(pricePerNight) {
 	function updateBookingTotal(fromDate, toDate) {
 		if (!fromDate || !toDate) {
 			nightsEl.textContent = '0';
-			totalEl.textContent = `$${pricePerNight}`;
+			totalEl.textContent = `$${pricePerNight || 0}`;
 			return;
 		}
 
@@ -1198,454 +1078,300 @@ function setupPlaceBookingDatePicker(pricePerNight) {
 	}
 }
 
+/* =========================
+   Inline Review Form
+========================= */
 function setupInlineReviewForm(placeId) {
-    const form = document.getElementById('inline-review-form');
-    const message = document.getElementById('inline-review-message');
-    const token = getCookie('token');
+	const form = document.getElementById('inline-review-form');
+	const message = document.getElementById('inline-review-message');
+	const token = getToken();
 
-    const stars = document.querySelectorAll('#star-rating .star');
-    const ratingInput = document.getElementById('inline-review-rating');
+	const stars = document.querySelectorAll('#star-rating .star');
+	const ratingInput = document.getElementById('inline-review-rating');
 
-    let currentRating = 0;
+	let currentRating = 0;
 
-    if (stars.length) {
-        stars.forEach(star => {
-            star.addEventListener('mouseenter', () => {
-                highlightStars(star.dataset.value);
-            });
+	if (stars.length) {
+		stars.forEach(star => {
+			star.addEventListener('mouseenter', () => {
+				highlightStars(Number(star.dataset.value));
+			});
 
-            star.addEventListener('mouseleave', () => {
-                highlightStars(currentRating);
-            });
+			star.addEventListener('mouseleave', () => {
+				highlightStars(currentRating);
+			});
 
-            star.addEventListener('click', () => {
-                currentRating = star.dataset.value;
-                ratingInput.value = currentRating;
-                highlightStars(currentRating);
-            });
-        });
-    }
+			star.addEventListener('click', () => {
+				currentRating = Number(star.dataset.value);
+				if (ratingInput) ratingInput.value = currentRating;
+				highlightStars(currentRating);
+			});
+		});
+	}
 
-    function highlightStars(rating) {
-        stars.forEach(star => {
-            star.classList.toggle('active', star.dataset.value <= rating);
-        });
-    }
+	function highlightStars(rating) {
+		stars.forEach(star => {
+			star.classList.toggle('active', Number(star.dataset.value) <= Number(rating));
+		});
+	}
 
-    if (!form || !message || !token) return;
+	if (!form || !message || !token || !placeId) return;
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+	form.addEventListener('submit', async (e) => {
+		e.preventDefault();
 
-        const rating = Number(ratingInput.value);
-        const text = document.getElementById('inline-review-text').value.trim();
+		const rating = Number(ratingInput?.value);
+		const text = document.getElementById('inline-review-text')?.value.trim();
 
-        if (!rating) {
-            message.textContent = 'Please select a rating.';
-            return;
-        }
+		if (!rating) {
+			message.textContent = 'Please select a rating.';
+			return;
+		}
 
-        message.textContent = '';
+		message.textContent = '';
 
-        try {
-            const response = await fetch('http://127.0.0.1:5000/api/v1/reviews/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify({
-                    text,
-                    rating,
-                    place_id: placeId
-                })
-            });
+		try {
+			const response = await fetch(`${API_BASE_URL}/reviews/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
+				body: JSON.stringify({
+					text,
+					rating,
+					place_id: placeId
+				})
+			});
 
-            if (!response.ok) {
-                message.textContent = 'Failed to submit review.';
-                return;
-            }
+			if (!response.ok) {
+				message.textContent = 'Failed to submit review.';
+				return;
+			}
 
-            message.textContent = 'Review submitted successfully!';
-            form.reset();
-            currentRating = 0;
-            highlightStars(0);
+			message.textContent = 'Review submitted successfully!';
+			form.reset();
+			currentRating = 0;
+			highlightStars(0);
 
-            fetchPlaceDetails(token, placeId);
-        } catch {
-            message.textContent = 'Server error.';
-        }
-    });
+			fetchPlaceDetails(token, placeId);
+		} catch {
+			message.textContent = 'Server error.';
+		}
+	});
 }
 
+/* =========================
+   Amenities
+========================= */
 async function loadAmenities() {
-    const container = document.getElementById('amenities-list');
-    if (!container) return;
+	const container = document.getElementById('amenities-list');
+	if (!container) return;
 
-    const res = await fetch('http://127.0.0.1:5000/api/v1/amenities/');
-    const data = await res.json();
+	try {
+		const res = await fetch(`${API_BASE_URL}/amenities/`);
+		if (!res.ok) throw new Error();
 
-    data.forEach(a => {
-        container.innerHTML += `
-            <label class="amenity-item">
-                <input type="checkbox" value="${a.id}">
-                ${a.name}
-            </label>
-        `;
-    });
-}
+		const data = await safeJson(res);
 
-document.getElementById('images')?.addEventListener('change', (e) => {
-    const gallery = document.getElementById('preview-gallery');
-    gallery.innerHTML = '';
+		container.innerHTML = '';
 
-    [...e.target.files].forEach(file => {
-        const img = document.createElement('img');
-        img.src = URL.createObjectURL(file);
-        gallery.appendChild(img);
-    });
-});
-
-function setupAddPlaceForm() {
-    const form = document.getElementById('add-place-form');
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        const token = getCookie('token');
-
-        const amenities = [...document.querySelectorAll('#amenities-list input:checked')]
-            .map(el => el.value);
-
-        const data = {
-            title: title.value,
-            description: description.value,
-            short_description: document.getElementById('short-description').value,
-            price: Number(price.value),
-            max_guests: Number(guests.value),
-            amenities
-        };
-
-        const res = await fetch('http://127.0.0.1:5000/api/v1/places/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Authorization: `Bearer ${token}`
-            },
-            body: JSON.stringify(data)
-        });
-
-        const place = await res.json();
-
-        /* رفع الصور */
-        const files = document.getElementById('images').files;
-
-        for (let file of files) {
-            const fd = new FormData();
-            fd.append('image', file);
-
-            await fetch(`http://127.0.0.1:5000/api/v1/places/${place.id}/images`, {
-                method: 'POST',
-                headers: { Authorization: `Bearer ${token}` },
-                body: fd
-            });
-        }
-
-        alert('Place created');
-    });
+		data.forEach(a => {
+			container.innerHTML += `
+				<label class="amenity-item">
+					<input type="checkbox" value="${a.id}">
+					${a.name}
+				</label>
+			`;
+		});
+	} catch {
+		container.innerHTML = '<p>Failed to load amenities.</p>';
+	}
 }
 
 function loadAmenitiesForAddPlace() {
-    const container = document.getElementById('amenities-list');
-    if (!container) return;
+	const container = document.getElementById('amenities-list');
+	if (!container) return;
 
-    fetch('http://127.0.0.1:5000/api/v1/amenities/')
-        .then(res => res.json())
-        .then(data => {
-            container.innerHTML = '';
+	fetch(`${API_BASE_URL}/amenities/`)
+		.then(res => {
+			if (!res.ok) throw new Error();
+			return res.json();
+		})
+		.then(data => {
+			container.innerHTML = '';
 
-            data.forEach(amenity => {
-                container.innerHTML += `
-                    <label class="amenity-item">
-                        <input type="checkbox" value="${amenity.id}">
-                        <span>${amenity.name}</span>
-                    </label>
-                `;
-            });
-        })
-        .catch(() => {
-            container.innerHTML = '<p>Failed to load amenities.</p>';
-        });
+			data.forEach(amenity => {
+				container.innerHTML += `
+					<label class="amenity-item">
+						<input type="checkbox" value="${amenity.id}">
+						<span>${amenity.name}</span>
+					</label>
+				`;
+			});
+		})
+		.catch(() => {
+			container.innerHTML = '<p>Failed to load amenities.</p>';
+		});
 }
 
+/* =========================
+   Add Place Page
+========================= */
 function setupAddPlaceImageInputs() {
-    const mainInput = document.getElementById('main-image-url');
-    const otherInput = document.getElementById('other-image-url');
-    const addMainBtn = document.getElementById('add-main-image-btn');
-    const addOtherBtn = document.getElementById('add-other-image-btn');
+	const mainInput = document.getElementById('main-image-url');
+	const otherInput = document.getElementById('other-image-url');
+	const addMainBtn = document.getElementById('add-main-image-btn');
+	const addOtherBtn = document.getElementById('add-other-image-btn');
 
-    if (!mainInput || !otherInput || !addMainBtn || !addOtherBtn) return;
+	if (!mainInput || !otherInput || !addMainBtn || !addOtherBtn) return;
 
-    addMainBtn.addEventListener('click', () => {
-        const value = mainInput.value.trim();
-        if (!value) return;
+	addMainBtn.addEventListener('click', () => {
+		const value = mainInput.value.trim();
+		if (!value) return;
 
-        addPlaceMainImage = value;
-        mainInput.value = '';
-        renderAddPlacePreviewGallery();
-    });
+		addPlaceMainImage = value;
+		mainInput.value = '';
+		renderAddPlacePreviewGallery();
+	});
 
-    addOtherBtn.addEventListener('click', () => {
-        const value = otherInput.value.trim();
-        if (!value) return;
+	addOtherBtn.addEventListener('click', () => {
+		const value = otherInput.value.trim();
+		if (!value) return;
 
-        addPlaceOtherImages.push(value);
-        otherInput.value = '';
-        renderAddPlacePreviewGallery();
-    });
+		addPlaceOtherImages.push(value);
+		otherInput.value = '';
+		renderAddPlacePreviewGallery();
+	});
 }
 
 function renderAddPlacePreviewGallery() {
-    const gallery = document.getElementById('preview-gallery');
-    if (!gallery) return;
+	const gallery = document.getElementById('preview-gallery');
+	if (!gallery) return;
 
-    const allImages = [
-        ...(addPlaceMainImage ? [addPlaceMainImage] : []),
-        ...addPlaceOtherImages
-    ];
+	gallery.innerHTML = '';
 
-    gallery.innerHTML = '';
+	const allImages = [
+		...(addPlaceMainImage ? [{ url: addPlaceMainImage, type: 'main' }] : []),
+		...addPlaceOtherImages.map((url, index) => ({
+			url,
+			type: 'other',
+			index
+		}))
+	];
 
-    allImages.forEach((imageUrl, index) => {
-        gallery.innerHTML += `
-            <div class="preview-gallery-item">
-                <img src="${imageUrl}" alt="Preview ${index + 1}">
-            </div>
-        `;
-    });
+	allImages.forEach((image, index) => {
+		const label = image.type === 'main' ? 'Main Photo' : `Photo ${index + 1}`;
+
+		gallery.innerHTML += `
+			<div class="preview-gallery-item">
+				<img src="${image.url}" alt="Preview ${index + 1}">
+				
+				<button
+					type="button"
+					class="remove-preview-btn"
+					data-type="${image.type}"
+					${image.type === 'other' ? `data-index="${image.index}"` : ''}
+					aria-label="Remove image"
+				>
+					×
+				</button>
+
+				<span class="preview-badge">${label}</span>
+			</div>
+		`;
+	});
+
+	gallery.querySelectorAll('.remove-preview-btn').forEach(button => {
+		button.addEventListener('click', () => {
+			const type = button.dataset.type;
+
+			if (type === 'main') {
+				addPlaceMainImage = '';
+			} else if (type === 'other') {
+				const imageIndex = Number(button.dataset.index);
+				addPlaceOtherImages.splice(imageIndex, 1);
+			}
+
+			renderAddPlacePreviewGallery();
+		});
+	});
 }
 
 function setupAddPlaceForm() {
-    const form = document.getElementById('add-place-form');
-    const message = document.getElementById('add-place-message');
-    const token = getCookie('token');
+	const form = document.getElementById('add-place-form');
+	const message = document.getElementById('add-place-message');
 
-    if (!form) return;
+	if (!form) return;
 
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
+	form.addEventListener('submit', async (e) => {
+		e.preventDefault();
 
-        if (!token) {
-            window.location.href = 'login.html';
-            return;
-        }
+		const token = getToken();
 
-        const title = document.getElementById('title').value.trim();
-        const shortDescription = document.getElementById('short-description').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const price = Number(document.getElementById('price').value);
-        const guests = Number(document.getElementById('guests').value);
-        const city = document.getElementById('city').value.trim();
+		if (!token) {
+			window.location.href = 'login.html';
+			return;
+		}
 
-        const selectedAmenities = [
-            ...document.querySelectorAll('#amenities-list input[type="checkbox"]:checked')
-        ].map(input => input.value);
+		const title = document.getElementById('title')?.value.trim();
+		const shortDescription = document.getElementById('short-description')?.value.trim();
+		const description = document.getElementById('description')?.value.trim();
+		const price = Number(document.getElementById('price')?.value);
+		const guests = Number(document.getElementById('guests')?.value);
+		const city = document.getElementById('city')?.value.trim();
 
-        const payload = {
-            title,
-            short_description: shortDescription,
-            description,
-            price,
-            max_guests: guests,
-            city,
-            image_url: addPlaceMainImage,
-            images: addPlaceOtherImages,
-            amenities: selectedAmenities,
-            latitude: 0,
-            longitude: 0
-        };
+		const selectedAmenities = [
+			...document.querySelectorAll('#amenities-list input[type="checkbox"]:checked')
+		].map(input => input.value);
 
-        if (message) message.textContent = '';
+		const payload = {
+			title,
+			short_description: shortDescription,
+			description,
+			price,
+			max_guests: guests,
+			city,
+			image_url: addPlaceMainImage || '',
+			images: addPlaceOtherImages,
+			amenities: selectedAmenities,
+			latitude: 0,
+			longitude: 0
+		};
 
-        try {
-            const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
+		if (message) message.textContent = '';
 
-            const data = await response.json().catch(() => null);
+		try {
+			const response = await fetch(`${API_BASE_URL}/places/`, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+					Authorization: `Bearer ${token}`
+				},
+				body: JSON.stringify(payload)
+			});
 
-            if (!response.ok) {
-                if (message) {
-                    message.textContent = data?.message || data?.error || 'Failed to add place.';
-                }
-                return;
-            }
+			const data = await safeJson(response);
 
-            if (message) {
-                message.textContent = 'Place added successfully!';
-            }
+			if (!response.ok) {
+				if (message) {
+					message.textContent = data?.message || data?.error || 'Failed to add place.';
+				}
+				return;
+			}
 
-            form.reset();
-            addPlaceMainImage = '';
-            addPlaceOtherImages = [];
-            renderAddPlacePreviewGallery();
-        } catch {
-            if (message) {
-                message.textContent = 'Server error.';
-            }
-        }
-    });
-}
+			if (message) {
+				message.textContent = 'Place added successfully!';
+			}
 
-function loadAmenitiesForAddPlace() {
-    const container = document.getElementById('amenities-list');
-    if (!container) return;
-
-    fetch('http://127.0.0.1:5000/api/v1/amenities/')
-        .then(res => res.json())
-        .then(data => {
-            container.innerHTML = '';
-
-            data.forEach(amenity => {
-                container.innerHTML += `
-                    <label class="amenity-item">
-                        <input type="checkbox" value="${amenity.id}">
-                        <span>${amenity.name}</span>
-                    </label>
-                `;
-            });
-        })
-        .catch(() => {
-            container.innerHTML = '<p>Failed to load amenities.</p>';
-        });
-}
-
-function setupAddPlaceImageInputs() {
-    const mainInput = document.getElementById('main-image-url');
-    const otherInput = document.getElementById('other-image-url');
-    const addMainBtn = document.getElementById('add-main-image-btn');
-    const addOtherBtn = document.getElementById('add-other-image-btn');
-
-    if (!mainInput || !otherInput || !addMainBtn || !addOtherBtn) return;
-
-    addMainBtn.addEventListener('click', () => {
-        const value = mainInput.value.trim();
-        if (!value) return;
-
-        addPlaceMainImage = value;
-        mainInput.value = '';
-        renderAddPlacePreviewGallery();
-    });
-
-    addOtherBtn.addEventListener('click', () => {
-        const value = otherInput.value.trim();
-        if (!value) return;
-
-        addPlaceOtherImages.push(value);
-        otherInput.value = '';
-        renderAddPlacePreviewGallery();
-    });
-}
-
-function renderAddPlacePreviewGallery() {
-    const gallery = document.getElementById('preview-gallery');
-    if (!gallery) return;
-
-    const allImages = [
-        ...(addPlaceMainImage ? [addPlaceMainImage] : []),
-        ...addPlaceOtherImages
-    ];
-
-    gallery.innerHTML = '';
-
-    allImages.forEach((imageUrl, index) => {
-        gallery.innerHTML += `
-            <div class="preview-gallery-item">
-                <img src="${imageUrl}" alt="Preview ${index + 1}">
-            </div>
-        `;
-    });
-}
-
-function setupAddPlaceForm() {
-    const form = document.getElementById('add-place-form');
-    const message = document.getElementById('add-place-message');
-    const token = getCookie('token');
-
-    if (!form) return;
-
-    form.addEventListener('submit', async (e) => {
-        e.preventDefault();
-
-        if (!token) {
-            window.location.href = 'login.html';
-            return;
-        }
-
-        const title = document.getElementById('title').value.trim();
-        const shortDescription = document.getElementById('short-description').value.trim();
-        const description = document.getElementById('description').value.trim();
-        const price = Number(document.getElementById('price').value);
-        const guests = Number(document.getElementById('guests').value);
-        const city = document.getElementById('city').value.trim();
-
-        const selectedAmenities = [
-            ...document.querySelectorAll('#amenities-list input[type="checkbox"]:checked')
-        ].map(input => input.value);
-
-        const payload = {
-            title,
-            short_description: shortDescription,
-            description,
-            price,
-            max_guests: guests,
-            city,
-            image_url: addPlaceMainImage,
-            images: addPlaceOtherImages,
-            amenities: selectedAmenities,
-            latitude: 0,
-            longitude: 0
-        };
-
-        if (message) message.textContent = '';
-
-        try {
-            const response = await fetch('http://127.0.0.1:5000/api/v1/places/', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}`
-                },
-                body: JSON.stringify(payload)
-            });
-
-            const data = await response.json().catch(() => null);
-
-            if (!response.ok) {
-                if (message) {
-                    message.textContent = data?.message || data?.error || 'Failed to add place.';
-                }
-                return;
-            }
-
-            if (message) {
-                message.textContent = 'Place added successfully!';
-            }
-
-            form.reset();
-            addPlaceMainImage = '';
-            addPlaceOtherImages = [];
-            renderAddPlacePreviewGallery();
-        } catch {
-            if (message) {
-                message.textContent = 'Server error.';
-            }
-        }
-    });
+			form.reset();
+			addPlaceMainImage = '';
+			addPlaceOtherImages = [];
+			renderAddPlacePreviewGallery();
+		} catch {
+			if (message) {
+				message.textContent = 'Server error.';
+			}
+		}
+	});
 }
