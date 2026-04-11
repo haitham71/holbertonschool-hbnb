@@ -8,6 +8,9 @@
 	<link rel="stylesheet" href="css/main.css">
 	<link rel="stylesheet" href="css/login.css">
 	<link rel="stylesheet" href="css/dark-mode.css">
+
+	<link rel="icon" type="image/x-icon" href="site-icon.ico">
+
 </head>
 
 <body class="login-page page-shell">
@@ -41,8 +44,10 @@
 			<div class="login-card">
 				<h1>Welcome to HBnB</h1>
 
+				<!-- LOGIN FORM -->
 				<form class="login-form-custom" id="login-form">
 					<input type="email" id="email" name="email" placeholder="Email" required>
+
 					<div class="password-field">
 						<input type="password" id="password" name="password" placeholder="Password" required>
 						<button type="button" class="password-toggle" id="password-toggle" aria-label="Show password">
@@ -53,6 +58,35 @@
 					<p id="error-message"></p>
 
 					<button type="submit" class="login-submit-btn">Login</button>
+
+					<p class="form-switch-text">
+						You don't have an account?
+						<button type="button" class="form-switch-btn" id="show-signup-btn">Sign up</button>
+					</p>
+				</form>
+
+				<!-- SIGNUP FORM -->
+				<form class="signup-form-custom hidden-form" id="signup-form">
+					<input type="email" id="signup-email" name="signup-email" placeholder="Email" required>
+
+					<div class="signup-name-row">
+						<input type="text" id="signup-first-name" name="signup-first-name" placeholder="First Name" required>
+						<input type="text" id="signup-last-name" name="signup-last-name" placeholder="Last Name" required>
+					</div>
+
+					<div class="signup-password-row">
+						<input type="password" id="signup-password" name="signup-password" placeholder="Password" required>
+						<input type="password" id="signup-confirm-password" name="signup-confirm-password" placeholder="Confirm Password" required>
+					</div>
+
+					<p id="signup-message"></p>
+
+					<button type="submit" class="login-submit-btn">Create Account</button>
+
+					<p class="form-switch-text">
+						Already have an account?
+						<button type="button" class="form-switch-btn" id="show-login-btn">Login</button>
+					</p>
 				</form>
 			</div>
 		</section>

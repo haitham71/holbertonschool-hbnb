@@ -198,3 +198,94 @@
 .login-page .login-button {
     display: none !important;
 }	
+
+/* =========================
+   LOGIN / SIGNUP SWITCH
+========================= */
+
+.hidden-form {
+    display: none;
+}
+
+.form-switch-text {
+    margin: 14px 0 0 0;
+    text-align: center;
+    font-size: 15px;
+    font-weight: 500;
+    color: #7a6d6d;
+}
+
+.form-switch-btn {
+    border: none;
+    background: none;
+    color: #9e5748;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0;
+    margin-left: 4px;
+    position: relative;
+}
+
+.form-switch-btn::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -2px;
+    width: 0;
+    height: 2px;
+    background: #9e5748;
+    transition: width 0.3s ease;
+}
+
+.form-switch-btn:hover::after {
+    width: 100%;
+}
+
+/* =========================
+   SIGNUP FORM
+========================= */
+
+.signup-form-custom {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.signup-form-custom input {
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 999px;
+    padding: 0 18px;
+    box-sizing: border-box;
+    background: #d9d9d9;
+    color: #666;
+    font-size: 16px;
+    outline: none;
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.12);
+}
+
+.signup-form-custom input::placeholder {
+    color: #8a8a8a;
+}
+
+.signup-name-row,
+.signup-password-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+#signup-message {
+    min-height: 20px;
+    margin: 0;
+    text-align: center;
+    font-size: 14px;
+    font-weight: 600;
+    color: #9e5748;
+}
+
+.hidden-form {
+    display: none !important;
+}

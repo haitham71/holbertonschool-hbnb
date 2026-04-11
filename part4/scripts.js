@@ -11,6 +11,7 @@ let addPlaceOtherImages = [];
 
 document.addEventListener('DOMContentLoaded', () => {
 	setupLoginForm();
+	setupSignupForm();
 	updateAuthNavLink();
 
 	checkAuthenticationAndLoadPlaces();
@@ -485,18 +486,22 @@ function displayPlaceDetails(place) {
 		: '0.00';
 
 	const reviewsHtml = place.reviews?.length
-	? place.reviews.map(review => `
+		? place.reviews.map(review => `
 		<div class="review-card">
 			<div class="review-card-header">
-				<div class="review-user">User: ${review.user_id}</div>
-				<div class="review-rating">Rating: ${review.rating}/5</div>
+				<div class="review-user">
+					${review.user_first_name || ''} ${review.user_last_name || ''}
+				</div>
+				<div class="review-rating">
+					Rating: ${review.rating}/5
+				</div>
 			</div>
 			<p class="review-text">${review.text}</p>
 		</div>
 	`).join('')
-	: '<p class="no-reviews">No reviews yet.</p>';
+		: '<p class="no-reviews">No reviews yet.</p>';
 
-	const stars = reviewCount ? '★★★★★' : '☆☆☆☆☆';
+	const stars = generateStars(Number(avgRating));
 
 	const amenityIcons = {
 		wifi: 'icons/wi-fi-icon.png',
@@ -1730,4 +1735,86 @@ async function deleteAdminReview(reviewId) {
 	} catch {
 		console.log('Failed to delete review');
 	}
-}c
+}
+
+function generateStars(rating) {
+	const fullStars = Math.floor(rating);
+	const emptyStars = 5 - fullStars;
+
+	return '★'.repeat(fullStars) + '☆'.repeat(emptyStars);
+}
+
+function setupSignupForm() {
+	const loginForm = document.getElementById('login-form');
+	const signupForm = document.getElementById('signup-form');
+	const showSignupBtn = document.getElementById('show-signup-btn');
+	const showLoginBtn = document.getElementById('show-login-btn');
+	const signupMessage = document.getElementById('signup-message');
+
+	if (!loginForm || !signupForm || !showSignupBtn || !showLoginBtn) return;
+
+	showSignupBtn.addEventListener('click', () => {
+		loginForm.classList.add('hidden-form');
+		signupForm.classList.remove('hidden-form');
+	});
+
+	showLoginBtn.addEventListener('click', () => {
+		signupForm.classList.add('hidden-form');
+		loginForm.classList.remove('hidden-form');
+	});
+
+	signupForm.addEventListener('submit', async (event) => {
+		event.preventDefault();
+
+		const email = document.getElementById('signup-email')?.value.trim();
+		const firstName = document.getElementById('signup-first-name')?.value.trim();
+		const lastName = document.getElementById('signup-last-name')?.value.trim();
+		const password = document.getElementById('signup-password')?.value.trim();
+		const confirmPassword = document.getElementById('signup-confirm-password')?.value.trim();
+
+		if (signupMessage) signupMessage.textContent = '';
+
+		if (password !== confirmPassword) {
+			if (signupMessage) signupMessage.textContent = 'Passwords do not match.';
+			return;
+		}
+
+		try {
+			const response = await fetch(`${API_BASE_URL}/users/`, {
+				method: 'POST',
+				headers: { 'Content-Type': 'application/json' },
+				body: JSON.stringify({
+					email,
+					first_name: firstName,
+					last_name: lastName,
+					password
+				})
+			});
+
+			const data = await safeJson(response);
+
+			if (!response.ok) {
+				if (signupMessage) {
+					signupMessage.textContent = data?.message || data?.error || 'Failed to create account.';
+				}
+				return;
+			}
+
+			if (signupMessage) {
+				signupMessage.textContent = 'Account created successfully. You can login now.';
+			}
+
+			signupForm.reset();
+
+			setTimeout(() => {
+				signupForm.classList.add('hidden-form');
+				loginForm.classList.remove('hidden-form');
+			}, 1000);
+
+		} catch {
+			if (signupMessage) {
+				signupMessage.textContent = 'Server connection error.';
+			}
+		}
+	});
+}
