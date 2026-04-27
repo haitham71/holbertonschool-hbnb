@@ -6,13 +6,12 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Places - HBnB</title>
 
-	<link rel="stylesheet" href="css/main.css">
-	<link rel="stylesheet" href="css/index.css">
-	<link rel="stylesheet" href="css/dark-mode.css">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/index.css') }}">
+	<link rel="stylesheet" href="{{ url_for('static', filename='css/dark-mode.css') }}">
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 
-	<link rel="icon" type="image/x-icon" href="site-icon.ico">
-
+	<link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='site-icon.ico') }}">
 </head>
 
 <body class="page-shell index-page light-mode">
@@ -27,19 +26,19 @@
 
 	<header class="site-header">
 		<nav class="top-nav">
-			<a href="index.html" class="nav-link is-active">Home</a>
-			<a href="login.html" class="nav-link" id="login-link">Login</a>
-			<a href="add_place.html" class="nav-link">Add place</a>
+			<a href="/" class="nav-link is-active">Home</a>
+			<a href="/login" class="nav-link" id="login-link">Login</a>
+			<a href="/add-place" class="nav-link">Add place</a>
 		</nav>
 
-		<img src="logo.png" alt="HBnB Logo" class="site-logo">
+		<img src="{{ url_for('static', filename='logo.png') }}" alt="HBnB Logo" class="site-logo">
 
 		<div class="theme-toggle">
 			<button class="theme-btn active" id="light-mode-btn" type="button" aria-label="Light mode">
-				<img src="icons/sun.png" alt="Light mode">
+				<img src="{{ url_for('static', filename='icons/sun.png') }}" alt="Light mode">
 			</button>
 			<button class="theme-btn" id="dark-mode-btn" type="button" aria-label="Dark mode">
-				<img src="icons/moon.png" alt="Dark mode">
+				<img src="{{ url_for('static', filename='icons/moon.png') }}" alt="Dark mode">
 			</button>
 		</div>
 	</header>
@@ -52,16 +51,17 @@
 		<section class="search-panel-wrapper">
 			<div class="search-panel">
 				<button type="button" class="search-submit-btn" id="search-submit-btn" aria-label="Search">
-					<img src="icons/search.png" alt="Search">
+					<img src="{{ url_for('static', filename='icons/search.png') }}" alt="Search">
 				</button>
+
 				<div class="search-item">
-					<img src="icons/location.png" alt="Location">
+					<img src="{{ url_for('static', filename='icons/location.png') }}" alt="Location">
 					<input type="text" id="location-input" placeholder="City / Place name">
 				</div>
 
 				<div class="search-item search-dropdown-wrapper" id="date-dropdown-wrapper">
 					<button type="button" class="search-trigger" id="date-trigger">
-						<img src="icons/calendar.png" alt="Dates">
+						<img src="{{ url_for('static', filename='icons/calendar.png') }}" alt="Dates">
 						<span id="date-display">Add dates</span>
 					</button>
 
@@ -69,15 +69,13 @@
 						<label class="dropdown-label" for="date-range-picker">Select stay dates</label>
 						<input type="text" id="date-range-picker" placeholder="Choose check-in and check-out" readonly>
 
-						<button type="button" class="dropdown-apply-btn" id="apply-dates">
-							Apply
-						</button>
+						<button type="button" class="dropdown-apply-btn" id="apply-dates">Apply</button>
 					</div>
 				</div>
 
 				<div class="search-item search-dropdown-wrapper" id="guests-dropdown-wrapper">
 					<button type="button" class="search-trigger" id="guests-trigger">
-						<img src="icons/Guests-icon.png" alt="Guests">
+						<img src="{{ url_for('static', filename='icons/Guests-icon.png') }}" alt="Guests">
 						<span id="guests-display">Add Guests</span>
 					</button>
 
@@ -88,11 +86,9 @@
 							</div>
 
 							<div class="guest-controls">
-								<button type="button" class="guest-btn" data-target="adults"
-									data-action="decrease">-</button>
+								<button type="button" class="guest-btn" data-target="adults" data-action="decrease">-</button>
 								<span class="guest-count" id="adults-count">0</span>
-								<button type="button" class="guest-btn" data-target="adults"
-									data-action="increase">+</button>
+								<button type="button" class="guest-btn" data-target="adults" data-action="increase">+</button>
 							</div>
 						</div>
 
@@ -102,17 +98,13 @@
 							</div>
 
 							<div class="guest-controls">
-								<button type="button" class="guest-btn" data-target="children"
-									data-action="decrease">-</button>
+								<button type="button" class="guest-btn" data-target="children" data-action="decrease">-</button>
 								<span class="guest-count" id="children-count">0</span>
-								<button type="button" class="guest-btn" data-target="children"
-									data-action="increase">+</button>
+								<button type="button" class="guest-btn" data-target="children" data-action="increase">+</button>
 							</div>
 						</div>
 
-						<button type="button" class="dropdown-apply-btn" id="apply-guests">
-							Apply
-						</button>
+						<button type="button" class="dropdown-apply-btn" id="apply-guests">Apply</button>
 					</div>
 				</div>
 			</div>
@@ -121,7 +113,7 @@
 		<div class="filter-row">
 			<div class="search-dropdown-wrapper filter-dropdown-wrapper" id="price-dropdown-wrapper">
 				<button type="button" class="search-trigger price-trigger" id="price-trigger">
-					<img src="icons/filter.png" alt="Price">
+					<img src="{{ url_for('static', filename='icons/filter.png') }}" alt="Price">
 					<span id="price-display">Price</span>
 				</button>
 
@@ -149,9 +141,7 @@
 						<input type="range" id="max-price-range" min="50" max="4000" step="50" value="4000">
 					</div>
 
-					<button type="button" class="dropdown-apply-btn" id="apply-price">
-						Apply
-					</button>
+					<button type="button" class="dropdown-apply-btn" id="apply-price">Apply</button>
 				</div>
 			</div>
 		</div>
@@ -166,7 +156,7 @@
 	</footer>
 
 	<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-	<script src="scripts.js"></script>
+	<script src="{{ url_for('static', filename='scripts.js') }}"></script>
 </body>
 
 </html>
