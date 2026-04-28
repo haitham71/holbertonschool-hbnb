@@ -721,7 +721,7 @@ body.admin-page.dark-mode .amenity-add-row input::placeholder {
 body.admin-page.dark-mode .search-row input:focus,
 body.admin-page.dark-mode .amenity-add-row input:focus {
     background: transparent;
-    border-color: rgba(247, 90, 57, 0.78);
+    border-color: rgba(180, 30, 0, 0.78);
     box-shadow: 0 0 0 3px rgba(247, 90, 57, 0.12);
 }
 
@@ -767,9 +767,13 @@ body.admin-page.dark-mode .nav-link {
     color: #f5e6e6;
 }
 
-body.admin-page.dark-mode .nav-link:hover,
+body.admin-page.dark-mode .nav-link:hover{
+    color: #4e3939;
+}
+
+
 body.admin-page.dark-mode .nav-link.is-active {
-    color: #f26161;
+    color: #976055;
 }
 
 body.index-page.dark-mode .delete-place-btn {
